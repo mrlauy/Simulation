@@ -10,19 +10,21 @@ namespace Simulation
     class Simulation 
     {
         private static int RUN_LENGTH = 100;
-        private SortedSet<Event> eventList;
+        private TreeSet<Event> eventList;
+        
      
         public Simulation()
         {
-            eventList = new SortedSet<Event>();
+            eventList = new TreeSet<Event>();
             Initialize();
         }
 
         private void Initialize()
         {
             // add initial events, machine 1, breakdowns 1,3,4, and end of simulation
-            eventList.Add(new Event(0, 1, Type.MACHINE_1, 1));
-            eventList.Add(new Event(RUN_LENGTH, Type.END_OF_SIMULATION)); 
+            eventList.Insert(new Event(0, 1, Type.MACHINE_1, 1));
+            eventList.Insert(new Event(RUN_LENGTH, Type.END_OF_SIMULATION));
+            Console.WriteLine("EventList: " + eventList);
         }
 
         public void Run()
@@ -31,8 +33,9 @@ namespace Simulation
             Console.WriteLine("Simulation running");
             while (running)
             {
-                Event evnt = eventList.First();
-                eventList.Remove(evnt);
+                Event evnt = eventList.Pop();
+
+                Console.WriteLine("Process Event: " + evnt);
 
                 long time  = evnt.Time;
                 switch (evnt.Type)
