@@ -6,30 +6,29 @@ using System.Threading.Tasks;
 
 namespace Simulation
 {
-    class TreeSet<T> : System.Collections.Generic.SortedList<int, T>
+    class TreeSet<T> : System.Collections.Generic.SortedList<T, int>
     {
         private int Counter;
         public TreeSet()
         {
             Counter = 0;
         }
+
         public void Insert(T item)
         {
-            this.Add(Counter++, item);
+            this.Add(item, Counter++);
         }
 
         public T Pop()
         {
-            int key = this.Keys[0];
-            T item = this.Values[0];
-            this.Remove(key);
-            
+            T item = this.Keys[0];
+            this.RemoveAt(0);
             return item;
         }
 
         public override string ToString()
         {
-            return "\n\t"+ String.Join(", \n\t", this.ToArray());
+            return "\n\t"+ String.Join(", \n\t", this.Keys.ToArray());
 
         }
     }

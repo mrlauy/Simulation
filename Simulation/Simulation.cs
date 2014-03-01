@@ -24,6 +24,9 @@ namespace Simulation
             // add initial events, machine 1, breakdowns 1,3,4, and end of simulation
             eventList.Insert(new Event(0, 1, Type.MACHINE_1, 1));
             eventList.Insert(new Event(RUN_LENGTH, Type.END_OF_SIMULATION));
+            eventList.Insert(new Event(10, 1, Type.MACHINE_1, 1));
+            eventList.Insert(new Event(20, 1, Type.MACHINE_1, 1));
+            eventList.Insert(new Event(30, 1, Type.MACHINE_1, 1));
             Console.WriteLine("EventList: " + eventList);
         }
 
