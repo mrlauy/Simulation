@@ -1,0 +1,166 @@
+
+M1Finished:			with a time out of the sheet
+	if (machine 1 = BROKEN) {
+		// M1 is broken which cause the dvd that was supposed to be finished to be still in M1
+		TimeM1ShouldHaveFinished = time
+	} else if (machine 1 = WASBROKEN) {
+		// M1 has been broken during producing the dvd
+		// the repair time of the machine is being added to the finishing time of the dvd
+		machine 1 = BUSY
+		schedule M1Finished : time machine 1 was broken 
+	} else if (machine 2 = IDLE) {
+		// Make M2 start production if M2 is available
+		machine 2 = BUSY
+		schedule M2Finished
+		schedule M1Finished
+	} else {
+		// M2 isn't available for input, place the DVD in buffer if there is room
+		buffer12 + 1
+		if (buffer12 == 20) {
+			// stop production, buffer full
+			machine 1 = IDLE
+		else {
+			// keep producing dvd's 
+			schedule new M1Finished
+		}
+	}
+	
+M2Finished:
+	if (contentBufferCrate < cratesReady * 20) {
+		schedule AddDVDtoCrate event 
+		
+		if (buffer12 > 0) {
+			buffer12 - 1
+			schedule M2Finished
+		} else {
+			state machine 2 = IDLE
+		}
+	} else {
+		state machine 2 = BLOCKED
+	}
+	
+AddDVDtoCrate:
+	contentBufferCrate + 1
+
+	if (contentBufferCrate >= cratesReady * 20) {
+		// One crate is full and thus ready to be put in M3
+		if ( contentBufferCrate == cratesReady * 20) {
+			// If no other crates are available we stop M2 from producing dvd's 
+			machine 2 = BLOCKED
+		}
+		// If M3 is available we start it's production
+		if (machine 3 = IDLE) {
+			cratesReady - 1
+			contentBufferCrate - 20
+			machine 3 = BUSY
+			schedule M3Finished
+		} 	
+	}
+
+M3Finished:
+	if (machine 3 = BROKEN) {
+		// M3 is broken which cause the batch of dvd's that was supposed to be finished to be still in M3
+		TimeM3ShouldHaveFinished = time
+	} else if (machine 3 = WASBROKEN) {
+		// M3 has been broken during producing the dvd
+		// the repair time of the machine is being added to the finishing time of the dvd's in the batch
+		machine 3 = BUSY
+		schedule M3Finished : time machine 3 was broken
+	} else {
+		// M3 is finished and starts M4 if M4 is available
+		if (machine 4 = IDLE) {
+		    //M3 outputs a crate with 20 dvd's 
+			cratesFinished + 1
+		    contentCratesFinished + 20
+			machine 4 = BUSY
+			schedule M4Finished
+		}	
+		// If a full crate is available for input M3, start producing this crate. Else, output the crate and go back to waiting for input. 
+		if (contentBufferCrates >= cratesReady * 20) {
+			cratesReady - 1
+			contentBufferCrate - 20
+			schedule M3Finished
+		} else {
+		    cratesFinished + 1
+			contentCratesFinished + 20
+			machine 3 = IDLE
+		}
+	}
+		
+M4Finished:
+	// A DVD is ready
+	if (contentCratesFinished > 0) {
+		contentCratesFinished - 1
+		schedule M4Finished
+		
+	    //If M2 emptied a whole crate
+		if (contentCratesFinished ==<  ((cratesFinished -1) * 20 ) {
+			// a crate is empty and ready to be filled again
+			cratesFinished - 1
+			cratesReady + 1
+			
+			// If M2 was blocked in it's output, lift the blockade
+			if (machine 2 = BLOCKED) {
+				schedule M2Finished
+				machine 2 = BUSY
+			}
+		}
+	} else {
+		machine 4 = IDLE
+	}
+	
+	
+	
+BreakdownM1:
+	machine 1 = BROKEN
+	brokenMachineTime = time
+	schedule repair machine 1: 2 hours exp distr.
+	time machine 1 is was broken = : 2 hours exp distr. 
+
+RepairM1:
+	schedule breakdown machine 1: 8 hours
+	if (TimeM1ShouldHaveFinished is set) {
+		machine 1 = BUSY
+		//repair time 2 hours exp. 
+		schedule machine 1 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
+		time machine should have finished = null // not set
+	} else {
+		// het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
+		machine 1 = WASBROKEN
+	}
+
+BreakdownM3:
+	machine 3 = BROKEN
+	brokenMachine3Time = time
+	schedule repair machine 3
+	time machine 3 is was broken = that time
+
+RepairM3:
+	schedule breakdown machine 3 : happens to 3% of the dvd's
+	if (machine 3 should have finished is set) {
+		machine 3 = BUSY
+		//repair time 5 minutes exp. distribution
+		schedule machine 3 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
+		time machine should have finished = null // not set
+	} else {
+		// het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
+		machine 3 = WASBROKEN
+	}
+	
+BreakdownM4:
+	machine 4 = BROKEN
+	brokenMachine4Time = time
+	schedule repair machine 4
+	time machine 4 is was broken = that time
+
+RepairM4:
+	schedule breakdown machine 4 : after 200 dvd's following the given distribution
+	if (machine 4 should have finished is set) {
+		machine 4 = BUSY
+		//repair time 15 minutes sd 1 minute
+		schedule machine 4 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
+		time machine should have finished = null // not set
+	} else {
+		// het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
+		machine 4 = WASBROKEN
+	}

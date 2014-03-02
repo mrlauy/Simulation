@@ -11,16 +11,16 @@ namespace Simulation
     class Event : IComparer<Event>, IComparable<Event>
     {
         public long Time { get; private set; }
-        public int DVD { get; private set; }
         public Type Type { get; private set; }
-        public int Machine { get; private set; } // A, B, C or D
+        public Machine Machine { get; private set; } // M1A, M2B, M1C or M4A
+        public int DVD { get; private set; }
 
-        public Event(long time, int dvd, Type type, int machine)
+        public Event(long time, Type type, Machine machine, int dvd)
         {
             Time = time;
-            DVD = dvd;
             Type = type;
             Machine = machine;
+            DVD = dvd;
         }
 
         // TODO maybe better to abstract such event that is not machine specific
@@ -34,17 +34,54 @@ namespace Simulation
         {
             // Events are never equal = 0, otherwise duplicates are maybe not possible 
             // Done events are handled before init events
-
-            // TODO add priority to which event is handeld first
-            return x.Time.CompareTo(y.Time);
+            
+			if (x.Time < y.Time) {
+                return -1;
+            }
+            else if (x.Time > y.Time)
+            {
+                return 1;
+            }
+            else
+            {
+                int equality = x.Type.CompareTo(y.Type);
+                if (equality == 0)
+                {
+                    return x.Machine.CompareTo(y.Machine);
+                }
+                else
+                {
+                    return equality;
+                }
+            }
         }
+
         public int CompareTo(Event e)
         {
             // Events are never equal = 0, otherwise duplicates are maybe not possible 
             // Done events are handled before init events
 
             // TODO add priority to which event is handeld first
-			return Time < e.Time ? -1 : (Time > e.Time ? 1 : (Type == Type.MACHINE_1 ? 1 : -1));
+            if (Time < e.Time)
+            {
+                return -1;
+            }
+            else if (Time > e.Time)
+            {
+                return 1;
+            }
+            else
+            {
+                int equality = Type.CompareTo(e.Type);
+                if (equality == 0)
+                {
+                    return Machine.CompareTo(e.Machine);
+                }
+                else
+                {
+                    return equality;
+                }
+            }
         }
 
         public override string ToString()

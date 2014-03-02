@@ -14,7 +14,7 @@ namespace Simulation
             Counter = 0;
         }
 
-        public void Insert(T item)
+        public void Add(T item)
         {
             this.Add(item, Counter++);
         }
