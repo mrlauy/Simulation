@@ -47,7 +47,8 @@ namespace Simulation
                 int equality = x.Type.CompareTo(y.Type);
                 if (equality == 0)
                 {
-                    return x.Machine.CompareTo(y.Machine);
+                    equality = x.Type.CompareTo(y.Type);
+                    return equality == 0 ? -1 : equality;
                 }
                 else
                 {
@@ -75,7 +76,8 @@ namespace Simulation
                 int equality = Type.CompareTo(e.Type);
                 if (equality == 0)
                 {
-                    return Machine.CompareTo(e.Machine);
+                    equality = Type.CompareTo(e.Type);
+                    return equality == 0 ? -1 : equality;
                 }
                 else
                 {

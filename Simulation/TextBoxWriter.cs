@@ -22,20 +22,14 @@ namespace Simulation
         {
             base.WriteLine(value);
             // _output.AppendText(value.ToString());
-            try
+         
+            if (_output.InvokeRequired)
             {
-                if (_output.InvokeRequired)
-                {
-                    _output.Invoke((MethodInvoker)(() => _output.AppendText(value.ToString() + Environment.NewLine)));
-                }
-                else
-                {
-                    _output.AppendText(value.ToString() + Environment.NewLine);
-                }
+                _output.Invoke((MethodInvoker)(() => _output.AppendText(value.ToString() + Environment.NewLine)));
             }
-            catch (ObjectDisposedException e)
+            else
             {
-                Debug.WriteLine("e:" + e);
+                _output.AppendText(value.ToString() + Environment.NewLine);
             }
         }
 
