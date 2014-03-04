@@ -9,11 +9,13 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Threading;
 using System.Reflection;
+using System.Diagnostics;
 
 namespace Simulation
 {
-    public partial class GUI : Form
+    public partial class GUI : Form, IUpdate
     {
+        private Thread thread;
         private Simulation Sim;
         private static Dictionary<State, Color> COLOR = new Dictionary<State, Color>
         {
@@ -33,15 +35,18 @@ namespace Simulation
             Sim = new Simulation(this);
             Console.SetOut(new TextBoxWriter(txtConsole));
             Console.WriteLine("Now redirecting output to the text box");
-
+           
+            speedBar.Value =(int)(Math.Sqrt((double)(400 - Sim.Speed)) * 10);
+            labelSpeed.Text = Sim.Speed.ToString();
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
             if (!Sim.Running)
-            {
+            {   
                 // Create the thread object, passing in the Alpha.Beta method
                 // via a ThreadStart delegate. This does not start the thread.
+
                 Thread thread = new Thread(new ThreadStart(Sim.Run));
 
                 // Start the thread
@@ -51,13 +56,28 @@ namespace Simulation
             else if (Sim.Paused)
             {
                 Sim.Paused = false;
-                buttonStart.Text = "Start";
+                buttonStart.Text = "Pause";
             }
             else
             {
                 Sim.Paused = true;
-                buttonStart.Text = "Pause";
+                buttonStart.Text = "Start";
             }
+        }
+
+        private void buttonStop_Click(object sender, EventArgs e)
+        {
+            Sim.Running = false;
+            if (thread != null)
+            {
+                thread.Abort();
+                thread.Join();
+                // Debug.WriteLine("Thread has terminated !");
+            }
+
+            Sim.Initialize();
+            buttonStart.Text = "Start";
+            UpdateSim();
         }
 
 
@@ -106,6 +126,12 @@ namespace Simulation
                     }
                 }
             }
+        }
+        private void scrSize_Scroll(object sender, System.Windows.Forms.ScrollEventArgs e) {
+            int speed = 400 - (int)Math.Round(Math.Pow(speedBar.Value / 10.0, 2)) + 1;
+            Sim.Speed = speed;
+            labelSpeed.Text = speed.ToString();
+            Console.WriteLine(speed.ToString() + "-" + speedBar.Value);
         }
     }
 }

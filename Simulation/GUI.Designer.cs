@@ -66,6 +66,10 @@
             this.labelTime = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
             this.txtConsole = new System.Windows.Forms.TextBox();
+            this.label6 = new System.Windows.Forms.Label();
+            this.speedBar = new System.Windows.Forms.HScrollBar();
+            this.labelSpeed = new System.Windows.Forms.Label();
+            this.buttonStop = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -81,7 +85,7 @@
             // 
             // buttonStart
             // 
-            this.buttonStart.Location = new System.Drawing.Point(585, 33);
+            this.buttonStart.Location = new System.Drawing.Point(599, 33);
             this.buttonStart.Name = "buttonStart";
             this.buttonStart.Size = new System.Drawing.Size(75, 23);
             this.buttonStart.TabIndex = 0;
@@ -92,6 +96,7 @@
             // panel1
             // 
             this.panel1.Controls.Add(this.labelInProduction);
+            this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.labelDVDInProduction);
             this.panel1.Controls.Add(this.label5);
             this.panel1.Controls.Add(this.labelDVDProduced);
@@ -116,7 +121,7 @@
             this.panel1.Controls.Add(this.panelM1A);
             this.panel1.Location = new System.Drawing.Point(12, 12);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(563, 224);
+            this.panel1.Size = new System.Drawing.Size(563, 204);
             this.panel1.TabIndex = 2;
             // 
             // labelInProduction
@@ -440,14 +445,56 @@
             this.txtConsole.Multiline = true;
             this.txtConsole.Name = "txtConsole";
             this.txtConsole.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.txtConsole.Size = new System.Drawing.Size(820, 199);
+            this.txtConsole.Size = new System.Drawing.Size(662, 199);
             this.txtConsole.TabIndex = 5;
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(458, 187);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(38, 13);
+            this.label6.TabIndex = 7;
+            this.label6.Text = "Speed";
+            // 
+            // speedBar
+            // 
+            this.speedBar.Location = new System.Drawing.Point(511, 199);
+            this.speedBar.Maximum = 209;
+            this.speedBar.Minimum = 10;
+            this.speedBar.Name = "speedBar";
+            this.speedBar.Size = new System.Drawing.Size(135, 17);
+            this.speedBar.TabIndex = 8;
+            this.speedBar.Value = 10;
+            this.speedBar.Scroll += new System.Windows.Forms.ScrollEventHandler(this.scrSize_Scroll);
+            // 
+            // labelSpeed
+            // 
+            this.labelSpeed.AutoSize = true;
+            this.labelSpeed.Location = new System.Drawing.Point(649, 199);
+            this.labelSpeed.Name = "labelSpeed";
+            this.labelSpeed.Size = new System.Drawing.Size(25, 13);
+            this.labelSpeed.TabIndex = 6;
+            this.labelSpeed.Text = "100";
+            // 
+            // buttonStop
+            // 
+            this.buttonStop.Location = new System.Drawing.Point(599, 62);
+            this.buttonStop.Name = "buttonStop";
+            this.buttonStop.Size = new System.Drawing.Size(75, 23);
+            this.buttonStop.TabIndex = 9;
+            this.buttonStop.Text = "Stop";
+            this.buttonStop.UseVisualStyleBackColor = true;
+            this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(844, 453);
+            this.ClientSize = new System.Drawing.Size(686, 453);
+            this.Controls.Add(this.buttonStop);
+            this.Controls.Add(this.speedBar);
+            this.Controls.Add(this.labelSpeed);
             this.Controls.Add(this.txtConsole);
             this.Controls.Add(this.timeLabel);
             this.Controls.Add(this.labelTime);
@@ -523,5 +570,9 @@
         private System.Windows.Forms.Label labelDVDInProduction;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label labelDVDProduced;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.HScrollBar speedBar;
+        private System.Windows.Forms.Label labelSpeed;
+        private System.Windows.Forms.Button buttonStop;
     }
 }

@@ -18,27 +18,35 @@ namespace Simulation
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new GUI());
-            // RunSimulation();
+            // new RunConsole();
         }
 
-        static void RunSimulation()
+        class RunConsole : IUpdate
         {
-            Console.WriteLine("Start simulation");
+            public RunConsole()
+            {
+                Console.WriteLine("Start simulation");
 
-            Simulation simulation = new Simulation();
+                Simulation simulation = new Simulation(this);
 
-            // Create the thread object, passing in the Alpha.Beta method
-            // via a ThreadStart delegate. This does not start the thread.
-            Thread thread = new Thread(new ThreadStart(simulation.Run));
+                // Create the thread object, passing in the Alpha.Beta method
+                // via a ThreadStart delegate. This does not start the thread.
+                Thread thread = new Thread(new ThreadStart(simulation.Run));
 
-            // Start the thread
-            thread.Start();
+                // Start the thread
+                thread.Start();
 
-            
-            thread.Join();
 
-            Console.WriteLine("Press a key to close...");
-            Console.ReadKey();
+                thread.Join();
+
+                Console.WriteLine("Press a key to close...");
+                Console.ReadKey();
+            }
+
+            public void UpdateSim()
+            {
+
+            }
         }
     }
 }
