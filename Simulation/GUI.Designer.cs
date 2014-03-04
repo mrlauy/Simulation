@@ -31,6 +31,7 @@
             this.buttonStart = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.labelInProduction = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
             this.labelDVDInProduction = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.labelDVDProduced = new System.Windows.Forms.Label();
@@ -66,7 +67,6 @@
             this.labelTime = new System.Windows.Forms.Label();
             this.timeLabel = new System.Windows.Forms.Label();
             this.txtConsole = new System.Windows.Forms.TextBox();
-            this.label6 = new System.Windows.Forms.Label();
             this.speedBar = new System.Windows.Forms.HScrollBar();
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
@@ -132,6 +132,15 @@
             this.labelInProduction.Size = new System.Drawing.Size(102, 13);
             this.labelInProduction.TabIndex = 16;
             this.labelInProduction.Text = "DVDs in production:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Location = new System.Drawing.Point(458, 187);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(38, 13);
+            this.label6.TabIndex = 7;
+            this.label6.Text = "Speed";
             // 
             // labelDVDInProduction
             // 
@@ -448,15 +457,6 @@
             this.txtConsole.Size = new System.Drawing.Size(662, 199);
             this.txtConsole.TabIndex = 5;
             // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(458, 187);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(38, 13);
-            this.label6.TabIndex = 7;
-            this.label6.Text = "Speed";
-            // 
             // speedBar
             // 
             this.speedBar.Location = new System.Drawing.Point(511, 199);
@@ -502,6 +502,7 @@
             this.Controls.Add(this.buttonStart);
             this.Name = "GUI";
             this.Text = "GUI";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GUI_FormClosed);
             this.Load += new System.EventHandler(this.Form_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();

@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Simulation
 {
     public enum State { IDLE, BUSY, BLOCKED, BROKEN, WASBROKEN };
-    public enum Machine { M1a, M1b, M1c, M1d, M2a, M2b, M3a, M3b, M4a, M4b };
+    public enum Machine { M1a, M1b, M1c, M1d, M2a, M2b, M3a, M3b, M4a, M4b, DUMMY };
 
     public class Simulation
     {
@@ -25,7 +25,7 @@ namespace Simulation
         private Random random;
 
         private int CRATE_SIZE = 10;
-        private int BUFFER_SIZE = 20;
+        private int BUFFER_SIZE = 10;
         // State variables
         public long Time { get; private set; }  // Simulation time
         public Dictionary<Machine, State> MachineState { get; private set; }    // state of each individual machine
@@ -58,8 +58,6 @@ namespace Simulation
 
         public void Initialize()
         {
-
-            new ReadTimes().Read();
             eventList = new TreeSet<Event>();
             random = new Random();
 
@@ -83,19 +81,19 @@ namespace Simulation
             MachineState[Machine.M1b] = State.BUSY;
             MachineState[Machine.M1c] = State.BUSY;
             MachineState[Machine.M1d] = State.BUSY;
-            MachineState[Machine.M2a] = State.BROKEN;
+            MachineState[Machine.M2a] = State.IDLE;
             MachineState[Machine.M2b] = State.IDLE;
             MachineState[Machine.M3a] = State.IDLE;
             MachineState[Machine.M3b] = State.IDLE;
             MachineState[Machine.M4a] = State.IDLE;
-            MachineState[Machine.M4b] = State.BROKEN;
+            MachineState[Machine.M4b] = State.IDLE;
 
             scheduleM1(0, Machine.M1a);
             scheduleM1(0, Machine.M1b);
             scheduleM1(0, Machine.M1c);
             scheduleM1(0, Machine.M1d);
 
-            eventList.Add(new Event(RUN_LENGTH, Type.END_OF_SIMULATION));
+            eventList.Add(new Event(RUN_LENGTH, Type.END_OF_SIMULATION, Machine.DUMMY, 0));
 
             Time = 0;
             Running = false;
@@ -208,67 +206,38 @@ namespace Simulation
             // schedule AddDVDtoCrate event 
             scheduleAddDVDToCrate(e.Time);
 
-            int limit = cratesToBeFilledM3 * CRATE_SIZE - (MachineState[Machine.M2a] == State.BUSY && MachineState[Machine.M2b] == State.BUSY ? 0 : 1);
-            if (dvdReadyForM3 <= limit)
+            if (e.Machine == Machine.M2a)
             {
-                if (e.Machine == Machine.M2a)
-                {
-                    if (BufferA > 0)
-                    {
-                        BufferA--;
-                        // schedule M2Finished
-                        scheduleM2(e.Time, e.Machine);
+                // schedule M2Finished
+                scheduleM2(e.Time, e.Machine);
 
-                        // check if machine was blocked and need to be scheduled again
-                        if (MachineState[Machine.M1a] == State.BLOCKED)
-                        {
-                            MachineState[Machine.M1a] = State.BUSY;
-                            scheduleM1(e.Time, Machine.M1a);
-                        }
-                        if (MachineState[Machine.M1b] == State.BLOCKED)
-                        {
-                            MachineState[Machine.M1b] = State.BUSY;
-                            scheduleM1(e.Time, Machine.M1b);
-                        }
-                    }
-                    else
-                    {
-                        // no input for the machine
-                        MachineState[e.Machine] = State.IDLE;
-                    }
+                // check if machine was blocked and need to be scheduled again
+                if (MachineState[Machine.M1a] == State.BLOCKED)
+                {
+                    MachineState[Machine.M1a] = State.BUSY;
+                    scheduleM1(e.Time, Machine.M1a);
                 }
-                else
+                if (MachineState[Machine.M1b] == State.BLOCKED)
                 {
-                    if (BufferB > 0)
-                    {
-                        BufferB--;
-                        // schedule M2Finished
-                        scheduleM2(e.Time, e.Machine);
-
-                        if (MachineState[Machine.M1c] == State.BLOCKED)
-                        {
-                            MachineState[Machine.M1c] = State.BUSY;
-                            scheduleM1(e.Time, Machine.M1c);
-                        }
-                        if (MachineState[Machine.M1d] == State.BLOCKED)
-                        {
-                            MachineState[Machine.M1d] = State.BUSY;
-                            scheduleM1(e.Time, Machine.M1d);
-                        }
-                    }
-                    else
-                    {
-                        // no input for the machine
-                        MachineState[e.Machine] = State.IDLE;
-                    }
+                    MachineState[Machine.M1b] = State.BUSY;
+                    scheduleM1(e.Time, Machine.M1b);
                 }
             }
             else
-            {
-                // the machine will not be able to output the next dvd
-                MachineState[e.Machine] = State.BLOCKED;
-            }
+            {       // schedule M2Finished
+                scheduleM2(e.Time, e.Machine);
 
+                if (MachineState[Machine.M1c] == State.BLOCKED)
+                {
+                    MachineState[Machine.M1c] = State.BUSY;
+                    scheduleM1(e.Time, Machine.M1c);
+                }
+                if (MachineState[Machine.M1d] == State.BLOCKED)
+                {
+                    MachineState[Machine.M1d] = State.BUSY;
+                    scheduleM1(e.Time, Machine.M1d);
+                }
+            }
         }
 
         private void AddDVDToCrate(Event e)
@@ -281,25 +250,14 @@ namespace Simulation
                 // If M3 is available we start it's production
                 if (MachineState[Machine.M3a] == State.IDLE)
                 {
-                    cratesToBeFilledM3--;
-                    dvdReadyForM3 -= CRATE_SIZE;
                     MachineState[Machine.M3a] = State.BUSY;
                     scheduleM3(e.Time, Machine.M3a);
                 }
                 else if (MachineState[Machine.M3b] == State.IDLE)
                 {
-                    cratesToBeFilledM3--;
-                    dvdReadyForM3 -= CRATE_SIZE;
                     MachineState[Machine.M3b] = State.BUSY;
                     scheduleM3(e.Time, Machine.M3b);
                 }
-
-                // If no other crates are available we stop M2 from producing dvd's 
-                if (cratesToBeFilledM3 <= 0)
-                {
-                    MachineState[e.Machine] = State.BLOCKED;
-                }
-
             }
         }
 
@@ -326,24 +284,13 @@ namespace Simulation
                     MachineState[Machine.M4a] = State.BUSY;
                     scheduleM4(e.Time, Machine.M4a);
                 }
-                
+
                 if (MachineState[Machine.M4b] == State.IDLE)
                 {
                     MachineState[Machine.M4b] = State.BUSY;
                     scheduleM4(e.Time, Machine.M4b);
                 }
-
-                // If a full crate is available for input M3, start producing this crate. Else, output the crate and go back to waiting for input. 
-                if (dvdReadyForM3 >= cratesToBeFilledM3 * CRATE_SIZE && cratesToBeFilledM3 > 0)
-                {
-                    cratesToBeFilledM3--;
-                    dvdReadyForM3 -= CRATE_SIZE;
-                    scheduleM3(e.Time, e.Machine);
-                }
-                else
-                {
-                    MachineState[e.Machine] = State.IDLE;
-                }
+                scheduleM3(e.Time, e.Machine);
             }
         }
 
@@ -352,11 +299,12 @@ namespace Simulation
             // update statistics
             dvdProduced++;
             dvdInProduction--;
+            int before = dvdReadyForInputM4;
 
             scheduleM4(e.Time, e.Machine);
 
             // If M4 emptied a whole crate
-            if (dvdReadyForInputM4 % CRATE_SIZE == 0)
+            if (before % CRATE_SIZE == 1 && dvdReadyForInputM4 % CRATE_SIZE == 0)
             {
                 // a crate is empty and ready to be filled again
                 cratesToBeFilledM3++;
@@ -466,19 +414,66 @@ namespace Simulation
         }
         private void scheduleM2(long time, Machine machine)
         {
-            long processTime = 24; // 
-            eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, 0));
+            int limit = cratesToBeFilledM3 * CRATE_SIZE - (MachineState[Machine.M2a] == State.BUSY && MachineState[Machine.M2b] == State.BUSY ? 0 : 1);
+            if (dvdReadyForM3 <= limit && cratesToBeFilledM3 > 0)
+            {
+                if (machine == Machine.M2a)
+                {
+                    if (BufferA > 0)
+                    {
+                        BufferA--;
 
+                        long processTime = 24; // 
+                        eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, 0));
+                    }
+                    else
+                    {
+                        // no input for the machine
+                        MachineState[machine] = State.IDLE;
+                    }
+                }
+                else
+                {
+                    if (BufferB > 0)
+                    {
+                        BufferB--;
+
+                        long processTime = 24; // 
+                        eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, 0));
+                    }
+                    else
+                    {
+                        // no input for the machine
+                        MachineState[machine] = State.IDLE;
+                    }
+                }
+            }
+            else
+            {
+                // the machine will not be able to output the next dvd
+                MachineState[machine] = State.BLOCKED;
+            }
         }
         private void scheduleAddDVDToCrate(long time)
         {
             long processTime = 5 * 60; // 
-            eventList.Add(new Event(time + processTime, Type.ADD_TO_CRATE));
+            eventList.Add(new Event(time + processTime, Type.ADD_TO_CRATE, Machine.DUMMY, 0));
         }
         private void scheduleM3(long time, Machine machine)
         {
-            long processTime = 10 + 6 + 3 * 60; // 
-            eventList.Add(new Event(time + processTime, Type.MACHINE_3, machine, 0));
+            // If a full crate is available for input M3, start producing this crate. Else, output the crate and go back to waiting for input. 
+            if (dvdReadyForM3 >= CRATE_SIZE && cratesToBeFilledM3 > 0 )
+            {
+                cratesToBeFilledM3--;
+                dvdReadyForM3 -= CRATE_SIZE;
+
+                long processTime = 10 + 6 + 3 * 60; // 
+                eventList.Add(new Event(time + processTime, Type.MACHINE_3, machine, 0));
+            }
+            else
+            {
+                MachineState[machine] = State.IDLE;
+            }
         }
         private void scheduleM4(long time, Machine machine)
         {

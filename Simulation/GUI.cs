@@ -133,5 +133,10 @@ namespace Simulation
             labelSpeed.Text = speed.ToString();
             Console.WriteLine(speed.ToString() + "-" + speedBar.Value);
         }
+
+        private void GUI_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Sim.Running = false;
+        }
     }
 }

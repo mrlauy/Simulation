@@ -23,13 +23,6 @@ namespace Simulation
             DVD = dvd;
         }
 
-        // TODO maybe better to abstract such event that is not machine specific
-        public Event(long time, Type type)
-        {
-            Time = time;
-            Type = type;
-        }
-
         public int Compare(Event x, Event y)
         {
             // Events are never equal = 0, otherwise duplicates are maybe not possible 
@@ -47,7 +40,11 @@ namespace Simulation
                 int equality = x.Type.CompareTo(y.Type);
                 if (equality == 0)
                 {
-                    equality = x.Type.CompareTo(y.Type);
+                    equality = x.Machine.CompareTo(y.Machine);
+                    if (equality == 0)
+                    {
+                        Console.WriteLine("FAIL: " + x.Machine + "-" + y.Machine);
+                    }
                     return equality == 0 ? -1 : equality;
                 }
                 else
@@ -76,7 +73,11 @@ namespace Simulation
                 int equality = Type.CompareTo(e.Type);
                 if (equality == 0)
                 {
-                    equality = Type.CompareTo(e.Type);
+                    equality = Machine.CompareTo(e.Machine);
+                    if (equality == 0)
+                    {
+                        Console.WriteLine("FAIL: " + Machine + "-" + e.Machine);
+                    }
                     return equality == 0 ? -1 : equality;
                 }
                 else
