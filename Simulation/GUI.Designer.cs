@@ -70,6 +70,8 @@
             this.speedBar = new System.Windows.Forms.HScrollBar();
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
+            this.labelDVDFailed = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -95,6 +97,8 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label7);
+            this.panel1.Controls.Add(this.labelDVDFailed);
             this.panel1.Controls.Add(this.labelInProduction);
             this.panel1.Controls.Add(this.label6);
             this.panel1.Controls.Add(this.labelDVDInProduction);
@@ -127,7 +131,7 @@
             // labelInProduction
             // 
             this.labelInProduction.AutoSize = true;
-            this.labelInProduction.Location = new System.Drawing.Point(298, 4);
+            this.labelInProduction.Location = new System.Drawing.Point(171, 1);
             this.labelInProduction.Name = "labelInProduction";
             this.labelInProduction.Size = new System.Drawing.Size(102, 13);
             this.labelInProduction.TabIndex = 16;
@@ -145,7 +149,7 @@
             // labelDVDInProduction
             // 
             this.labelDVDInProduction.AutoSize = true;
-            this.labelDVDInProduction.Location = new System.Drawing.Point(406, 4);
+            this.labelDVDInProduction.Location = new System.Drawing.Point(279, 1);
             this.labelDVDInProduction.Name = "labelDVDInProduction";
             this.labelDVDInProduction.Size = new System.Drawing.Size(13, 13);
             this.labelDVDInProduction.TabIndex = 15;
@@ -154,7 +158,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(446, 4);
+            this.label5.Location = new System.Drawing.Point(319, 1);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(86, 13);
             this.label5.TabIndex = 14;
@@ -163,7 +167,7 @@
             // labelDVDProduced
             // 
             this.labelDVDProduced.AutoSize = true;
-            this.labelDVDProduced.Location = new System.Drawing.Point(538, 4);
+            this.labelDVDProduced.Location = new System.Drawing.Point(411, 1);
             this.labelDVDProduced.Name = "labelDVDProduced";
             this.labelDVDProduced.Size = new System.Drawing.Size(13, 13);
             this.labelDVDProduced.TabIndex = 13;
@@ -487,6 +491,24 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
+            // labelDVDFailed
+            // 
+            this.labelDVDFailed.AutoSize = true;
+            this.labelDVDFailed.Location = new System.Drawing.Point(513, 1);
+            this.labelDVDFailed.Name = "labelDVDFailed";
+            this.labelDVDFailed.Size = new System.Drawing.Size(13, 13);
+            this.labelDVDFailed.TabIndex = 17;
+            this.labelDVDFailed.Text = "0";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(441, 1);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(66, 13);
+            this.label7.TabIndex = 18;
+            this.label7.Text = "DVDs failed:";
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -575,5 +597,7 @@
         private System.Windows.Forms.HScrollBar speedBar;
         private System.Windows.Forms.Label labelSpeed;
         private System.Windows.Forms.Button buttonStop;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label labelDVDFailed;
     }
 }

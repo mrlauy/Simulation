@@ -6,8 +6,6 @@ using System.Threading.Tasks;
 
 namespace Simulation
 {
-    enum Type { MACHINE_1, MACHINE_2, MACHINE_3, ADD_TO_CRATE, MACHINE_4, BREAKDOWN_1, BREAKDOWN_3, BREAKDOWN_4, REPAIRED_1, REPAIRED_3, REPAIRED_4, END_OF_SIMULATION };
-
     class Event : IComparer<Event>, IComparable<Event>
     {
         public long Time { get; private set; }
@@ -41,10 +39,6 @@ namespace Simulation
                 if (equality == 0)
                 {
                     equality = x.Machine.CompareTo(y.Machine);
-                    if (equality == 0)
-                    {
-                        Console.WriteLine("FAIL: " + x.Machine + "-" + y.Machine);
-                    }
                     return equality == 0 ? -1 : equality;
                 }
                 else
@@ -74,10 +68,6 @@ namespace Simulation
                 if (equality == 0)
                 {
                     equality = Machine.CompareTo(e.Machine);
-                    if (equality == 0)
-                    {
-                        Console.WriteLine("FAIL: " + Machine + "-" + e.Machine);
-                    }
                     return equality == 0 ? -1 : equality;
                 }
                 else

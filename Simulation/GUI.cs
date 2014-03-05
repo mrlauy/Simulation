@@ -15,7 +15,6 @@ namespace Simulation
 {
     public partial class GUI : Form, IUpdate
     {
-        private Thread thread;
         private Simulation Sim;
         private static Dictionary<State, Color> COLOR = new Dictionary<State, Color>
         {
@@ -23,6 +22,7 @@ namespace Simulation
             {State.BUSY, Color.Green},
             {State.BLOCKED, Color.Blue},
             {State.BROKEN, Color.DarkGray},
+            {State.BBROKEN, Color.Yellow},
             {State.WASBROKEN, Color.Gray}
         };
 
@@ -68,12 +68,6 @@ namespace Simulation
         private void buttonStop_Click(object sender, EventArgs e)
         {
             Sim.Running = false;
-            if (thread != null)
-            {
-                thread.Abort();
-                thread.Join();
-                // Debug.WriteLine("Thread has terminated !");
-            }
 
             Sim.Initialize();
             buttonStart.Text = "Start";
@@ -86,6 +80,7 @@ namespace Simulation
             SetControlPropertyValue(timeLabel, "Text", Sim.Time.ToString());
             SetControlPropertyValue(labelDVDInProduction, "Text", Sim.dvdInProduction.ToString());
             SetControlPropertyValue(labelDVDProduced, "Text", Sim.dvdProduced.ToString());
+            SetControlPropertyValue(labelDVDFailed, "Text", Sim.dvdFailed.ToString());
 
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.ToString());

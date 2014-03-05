@@ -9,7 +9,9 @@ using System.Diagnostics;
 
 namespace Simulation
 {
-    public enum State { IDLE, BUSY, BLOCKED, BROKEN, WASBROKEN };
+    enum Type { MACHINE_1, MACHINE_2, MACHINE_3, ADD_TO_CRATE, MACHINE_4, BREAKDOWN_1, BREAKDOWN_4, REPAIRED_1, REPAIRED_4, END_OF_SIMULATION };
+
+    public enum State { IDLE, BUSY, BLOCKED, BBROKEN, BROKEN, WASBROKEN };
     public enum Machine { M1a, M1b, M1c, M1d, M2a, M2b, M3a, M3b, M4a, M4b, DUMMY };
 
     public class Simulation
@@ -24,8 +26,9 @@ namespace Simulation
 
         private Random random;
 
-        private int CRATE_SIZE = 10;
-        private int BUFFER_SIZE = 10;
+        private int CRATE_SIZE = 20;
+        private int BUFFER_SIZE = 20;
+
         // State variables
         public long Time { get; private set; }  // Simulation time
         public Dictionary<Machine, State> MachineState { get; private set; }    // state of each individual machine
@@ -40,15 +43,15 @@ namespace Simulation
         public int dvdReadyForInputM4 { get; private set; }         // number of dvd ready to be processed by machine 4, 
         //   at least one dvd ready means there is a crate, 21 dvd ready means that there are two crates 
 
-        public int dvdCounter { get; private set; }    // counter for how many dvds the production has started to produce
-        public int dvdProduced { get; private set; }    // number of DVD produced 
+        public int dvdCounter { get; private set; }         // counter for how many dvds the production has started to produce
+        public int dvdProduced { get; private set; }        // number of DVD produced 
+        public int dvdFailed { get; private set; }          // number of DVD that failed during the process
         public int dvdInProduction { get; private set; }    // number of DVD in production
 
         // state of the machine in case something has gone wrong
         private Dictionary<Machine, long> TimeM1ShouldHaveFinished;
         private Dictionary<Machine, long> TimeM1HasBrokenDown;
-        private Dictionary<Machine, long> TimeM3ShouldHaveFinished;
-        private Dictionary<Machine, long> TimeM3HasBrokenDown;
+        private Dictionary<Machine, int> dvdBeforeM4Service;
 
         public Simulation(IUpdate parent)
         {
@@ -63,18 +66,20 @@ namespace Simulation
 
             // add initial events, machine 1, breakdowns 1,3,4, and end of simulation
             BufferA = BufferB = 0;
-            cratesToBeFilledM3 = 2;
+            cratesToBeFilledM3 = 6;
             dvdReadyForM3 = 0;
             dvdReadyForInputM4 = 0;
 
             dvdCounter = 1;
             dvdProduced = 0;
-            dvdInProduction = 4;
+            dvdFailed = 0;
+            dvdInProduction = 0;
 
             TimeM1ShouldHaveFinished = new Dictionary<Machine, long>();
             TimeM1HasBrokenDown = new Dictionary<Machine, long>();
-            TimeM3ShouldHaveFinished = new Dictionary<Machine, long>();
-            TimeM3HasBrokenDown = new Dictionary<Machine, long>();
+            dvdBeforeM4Service = new Dictionary<Machine, int>();
+            dvdBeforeM4Service[Machine.M4a] = M4Service();
+            dvdBeforeM4Service[Machine.M4b] = M4Service();
 
             MachineState = new Dictionary<Machine, State>();
             MachineState[Machine.M1a] = State.BUSY;
@@ -92,6 +97,11 @@ namespace Simulation
             scheduleM1(0, Machine.M1b);
             scheduleM1(0, Machine.M1c);
             scheduleM1(0, Machine.M1d);
+
+            scheduleM1Breakdown(0, Machine.M1a);
+            scheduleM1Breakdown(0, Machine.M1b);
+            scheduleM1Breakdown(0, Machine.M1c);
+            scheduleM1Breakdown(0, Machine.M1d);
 
             eventList.Add(new Event(RUN_LENGTH, Type.END_OF_SIMULATION, Machine.DUMMY, 0));
 
@@ -114,7 +124,6 @@ namespace Simulation
 
                     Console.WriteLine("Process Event: " + e);
 
-                    //long time = e.Time;
                     switch (e.Type)
                     {
                         case Type.MACHINE_1:
@@ -132,8 +141,14 @@ namespace Simulation
                         case Type.MACHINE_4:
                             M4Finished(e);
                             break;
-                        case Type.END_OF_SIMULATION:
-                            Running = false;
+                        case Type.BREAKDOWN_1:
+                            BreakdownM1(e);
+                            break;
+                        case Type.REPAIRED_1:
+                            RepairM1(e);
+                            break;
+                        case Type.REPAIRED_4:
+                            RepairM4(e);
                             break;
                         default:
                             Console.WriteLine("FAIL!");
@@ -157,7 +172,7 @@ namespace Simulation
             if (state == State.BROKEN)
             {
                 // M1 is broken which cause the dvd that was supposed to be finished to be still in M1
-                TimeM1ShouldHaveFinished[machine] = time;
+                 TimeM1ShouldHaveFinished[machine] = time;
             }
             else if (state == State.WASBROKEN)
             {
@@ -166,7 +181,10 @@ namespace Simulation
                 MachineState[machine] = State.BUSY;
 
                 // schedule M1Finished at time machine 1 was broken 
-                eventList.Add(new Event(time + TimeM1HasBrokenDown[machine], e.Type, machine, e.DVD));
+                eventList.Add(new Event(time + (time - TimeM1HasBrokenDown[machine]), e.Type, machine, e.DVD));
+                
+                TimeM1HasBrokenDown.Remove(machine);
+                TimeM1ShouldHaveFinished.Remove(machine);
             }
             else if (machine == Machine.M1a || machine == Machine.M1b)
             {
@@ -263,42 +281,40 @@ namespace Simulation
 
         private void M3Finished(Event e)
         {
-            if (MachineState[e.Machine] == State.BROKEN)
+            dvdReadyForInputM4 += CRATE_SIZE;
+            // M3 is finished and starts M4 if M4 is available
+            if (MachineState[Machine.M4a] == State.IDLE)
             {
-                // M3 is broken which cause the batch of dvd's that was supposed to be finished to be still in M3
-                TimeM3ShouldHaveFinished[e.Machine] = e.Time;
+                MachineState[Machine.M4a] = State.BUSY;
+                scheduleM4(e.Time, Machine.M4a);
             }
-            else if (MachineState[e.Machine] == State.WASBROKEN)
-            {
-                // M3 has been broken during producing the dvd
-                // the repair time of the machine is being added to the finishing time of the dvd's in the batch
-                MachineState[e.Machine] = State.BUSY;
-                // TODO schedule M3Finished : time machine 3 was broken
-            }
-            else
-            {
-                dvdReadyForInputM4 += CRATE_SIZE;
-                // M3 is finished and starts M4 if M4 is available
-                if (MachineState[Machine.M4a] == State.IDLE)
-                {
-                    MachineState[Machine.M4a] = State.BUSY;
-                    scheduleM4(e.Time, Machine.M4a);
-                }
 
-                if (MachineState[Machine.M4b] == State.IDLE)
-                {
-                    MachineState[Machine.M4b] = State.BUSY;
-                    scheduleM4(e.Time, Machine.M4b);
-                }
-                scheduleM3(e.Time, e.Machine);
+            if (MachineState[Machine.M4b] == State.IDLE)
+            {
+                MachineState[Machine.M4b] = State.BUSY;
+                scheduleM4(e.Time, Machine.M4b);
             }
+            scheduleM3(e.Time, e.Machine);
         }
 
         private void M4Finished(Event e)
         {
             // update statistics
-            dvdProduced++;
+
+            // The change the dvd has failed during the production
+            double change = random.NextDouble();
+            if (change > 0.02) // 2% van de dvds
+            {
+                dvdProduced++;
+            }
+            else
+            {
+                dvdFailed++;
+            }
             dvdInProduction--;
+            dvdBeforeM4Service[e.Machine]--;
+
+
             int before = dvdReadyForInputM4;
 
             scheduleM4(e.Time, e.Machine);
@@ -324,63 +340,52 @@ namespace Simulation
             }
         }
 
-        /*
-	
-        BreakdownM1:
-            machine 1 = BROKEN
-            brokenMachineTime = time
-            schedule repair machine 1: 2 hours exp distr.
-            time machine 1 is was broken = : 2 hours exp distr. 
+        private void BreakdownM1(Event e)
+        {
+            MachineState[e.Machine] = (MachineState[e.Machine] == State.BLOCKED ? State.BBROKEN : State.BROKEN);
+            TimeM1HasBrokenDown[e.Machine] = e.Time;
 
-        RepairM1:
-            schedule breakdown machine 1: 8 hours
-            if (TimeM1ShouldHaveFinished is set) {
-                machine 1 = BUSY
+            // schedule repair machine 1: 2 hours exp distr.
+            scheduleM1Repair(e.Time, e.Machine);
+        }
+
+        private void RepairM1(Event e)
+        {
+            // schedule breakdown machine 1: 
+            scheduleM1Breakdown(e.Time, e.Machine);
+
+            // check if the machine was in the meantime finished
+            if (TimeM1ShouldHaveFinished.ContainsKey(e.Machine))
+            {
+                // schedule machine 1 finished: time now (= de tijd dat hij gerepareerd is) + time product should have finished - time broken down
+                long delay = TimeM1ShouldHaveFinished[e.Machine] - TimeM1HasBrokenDown[e.Machine];
+
                 //repair time 2 hours exp. 
-                schedule machine 1 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
-                time machine should have finished = null // not set
-            } else {
-                // het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
-                machine 1 = WASBROKEN
-            }
+                MachineState[e.Machine] = State.BUSY;
+                eventList.Add(new Event(e.Time + delay, Type.MACHINE_1, e.Machine, 0));
 
-        BreakdownM3:
-            machine 3 = BROKEN
-            brokenMachine3Time = time
-            schedule repair machine 3
-            time machine 3 is was broken = that time
-
-        RepairM3:
-            schedule breakdown machine 3 : happens to 3% of the dvd's
-            if (machine 3 should have finished is set) {
-                machine 3 = BUSY
-                //repair time 5 minutes exp. distribution
-                schedule machine 3 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
-                time machine should have finished = null // not set
-            } else {
-                // het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
-                machine 3 = WASBROKEN
+                // reset variables
+                TimeM1HasBrokenDown.Remove(e.Machine);
+                TimeM1ShouldHaveFinished.Remove(e.Machine);
             }
-	
-        BreakdownM4:
-            machine 4 = BROKEN
-            brokenMachine4Time = time
-            schedule repair machine 4
-            time machine 4 is was broken = that time
-
-        RepairM4:
-            schedule breakdown machine 4 : after 200 dvd's following the given distribution
-            if (machine 4 should have finished is set) {
-                machine 4 = BUSY
-                //repair time 15 minutes sd 1 minute
-                schedule machine 4 finished: time now (de tijd dat hij gerepareerd is) + (time product should have finished - time broken down)
-                time machine should have finished = null // not set
-            } else {
-                // het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
-                machine 4 = WASBROKEN
+            else if (MachineState[e.Machine] == State.BBROKEN)
+            {
+                MachineState[e.Machine] = State.BUSY;
+                scheduleM1(e.Time, e.Machine);
             }
-        
-            */
+            else 
+            {
+                // het is nog niet bekend hoe lang de dvd in de machine heeft gezeten als die kapot is geweest
+                MachineState[e.Machine] = State.WASBROKEN;
+            }
+        }
+
+        private void RepairM4(Event e)
+        {
+            dvdBeforeM4Service[e.Machine] = M4Service();
+            MachineState[e.Machine] = State.BUSY;
+            scheduleM4(e.Time, e.Machine);
+        }
 
         private void scheduleM1(long time, Machine machine)
         {
@@ -462,7 +467,7 @@ namespace Simulation
         private void scheduleM3(long time, Machine machine)
         {
             // If a full crate is available for input M3, start producing this crate. Else, output the crate and go back to waiting for input. 
-            if (dvdReadyForM3 >= CRATE_SIZE && cratesToBeFilledM3 > 0 )
+            if (dvdReadyForM3 >= CRATE_SIZE && cratesToBeFilledM3 > 0)
             {
                 cratesToBeFilledM3--;
                 dvdReadyForM3 -= CRATE_SIZE;
@@ -477,7 +482,12 @@ namespace Simulation
         }
         private void scheduleM4(long time, Machine machine)
         {
-            if (dvdReadyForInputM4 > 0)
+            if (dvdBeforeM4Service[machine] == 0)
+            {
+                MachineState[machine] = State.BROKEN;
+                scheduleM4Repair(time, machine);
+            }
+            else if (dvdReadyForInputM4 > 0)
             {
                 dvdReadyForInputM4--;
                 long processTime = 25; // gemiddelde
@@ -489,10 +499,25 @@ namespace Simulation
             }
         }
 
-        private double getRandomTime()
+        private void scheduleM1Breakdown(long time, Machine machine)
         {
-            double u = random.NextDouble();
-            return Math.Log(1 - u) / (0 - 0.1);
+            long breakTime = 8 * 60;   // 8 hours exp distr
+            eventList.Add(new Event(time + breakTime, Type.BREAKDOWN_1, machine, 0));
         }
+        private void scheduleM1Repair(long time, Machine machine)
+        {
+            long breakTime = 30;   // 2 hours exp distr
+            eventList.Add(new Event(time + breakTime, Type.REPAIRED_1, machine, 0));
+        }
+        private void scheduleM4Repair(long time, Machine machine)
+        {
+            long breakTime = 15 * 60;   // 15 min exp distr
+            eventList.Add(new Event(time + breakTime, Type.REPAIRED_4, machine, 0));
+        }
+
+        private int M4Service()
+        {
+            return 200;
+        }   
     }
 }
