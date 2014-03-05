@@ -133,5 +133,10 @@ namespace Simulation
         {
             Sim.Running = false;
         }
+
+        private void labelDVDProduced_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

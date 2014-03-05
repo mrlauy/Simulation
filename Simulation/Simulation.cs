@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace Simulation
 {
-    enum Type { MACHINE_1, MACHINE_2, MACHINE_3, ADD_TO_CRATE, MACHINE_4, BREAKDOWN_1, BREAKDOWN_4, REPAIRED_1, REPAIRED_4, END_OF_SIMULATION };
+    enum Type { MACHINE_1, MACHINE_2, MACHINE_3, ADD_TO_CRATE, MACHINE_4, BREAKDOWN_1, REPAIRED_1, REPAIRED_4, END_OF_SIMULATION };
 
     public enum State { IDLE, BUSY, BLOCKED, BBROKEN, BROKEN, WASBROKEN };
     public enum Machine { M1a, M1b, M1c, M1d, M2a, M2b, M3a, M3b, M4a, M4b, DUMMY };
@@ -30,7 +30,7 @@ namespace Simulation
         private int BUFFER_SIZE = 20;
 
         // State variables
-        public long Time { get; private set; }  // Simulation time
+        public float Time { get; private set; }  // Simulation time
         public Dictionary<Machine, State> MachineState { get; private set; }    // state of each individual machine
         public int BufferA { get; private set; }     // buffer between machine 1a, machine 1b and machine 2a
         public int BufferB { get; private set; }     // buffer between machine 1c, machine 1d and machine 2b
@@ -49,8 +49,8 @@ namespace Simulation
         public int dvdInProduction { get; private set; }    // number of DVD in production
 
         // state of the machine in case something has gone wrong
-        private Dictionary<Machine, long> TimeM1ShouldHaveFinished;
-        private Dictionary<Machine, long> TimeM1HasBrokenDown;
+        private Dictionary<Machine, float> TimeM1ShouldHaveFinished;
+        private Dictionary<Machine, float> TimeM1HasBrokenDown;
         private Dictionary<Machine, int> dvdBeforeM4Service;
 
         public Simulation(IUpdate parent)
@@ -75,8 +75,8 @@ namespace Simulation
             dvdFailed = 0;
             dvdInProduction = 0;
 
-            TimeM1ShouldHaveFinished = new Dictionary<Machine, long>();
-            TimeM1HasBrokenDown = new Dictionary<Machine, long>();
+            TimeM1ShouldHaveFinished = new Dictionary<Machine, float>();
+            TimeM1HasBrokenDown = new Dictionary<Machine, float>();
             dvdBeforeM4Service = new Dictionary<Machine, int>();
             dvdBeforeM4Service[Machine.M4a] = M4Service();
             dvdBeforeM4Service[Machine.M4b] = M4Service();
@@ -156,7 +156,6 @@ namespace Simulation
                     }
 
                     parent.UpdateSim();
-
                 }
                 Thread.Sleep(Speed);
             }
@@ -165,7 +164,7 @@ namespace Simulation
 
         private void M1Finished(Event e)
         {
-            long time = e.Time;
+            float time = e.Time;
             Machine machine = e.Machine;
 
             State state = MachineState[machine];
@@ -358,7 +357,7 @@ namespace Simulation
             if (TimeM1ShouldHaveFinished.ContainsKey(e.Machine))
             {
                 // schedule machine 1 finished: time now (= de tijd dat hij gerepareerd is) + time product should have finished - time broken down
-                long delay = TimeM1ShouldHaveFinished[e.Machine] - TimeM1HasBrokenDown[e.Machine];
+                float delay = TimeM1ShouldHaveFinished[e.Machine] - TimeM1HasBrokenDown[e.Machine];
 
                 //repair time 2 hours exp. 
                 MachineState[e.Machine] = State.BUSY;
@@ -387,7 +386,7 @@ namespace Simulation
             scheduleM4(e.Time, e.Machine);
         }
 
-        private void scheduleM1(long time, Machine machine)
+        private void scheduleM1(float time, Machine machine)
         {
             int limit, buffer = BUFFER_SIZE;
 
@@ -413,11 +412,11 @@ namespace Simulation
             {
                 // keep producing dvd's, schedule new M1Finished
                 dvdInProduction++;
-                long processTime = 60; // gemiddelde
+                float processTime = 59.6f; // gemiddelde
                 eventList.Add(new Event(time + processTime, Type.MACHINE_1, machine, 0));
             }
         }
-        private void scheduleM2(long time, Machine machine)
+        private void scheduleM2(float time, Machine machine)
         {
             int limit = cratesToBeFilledM3 * CRATE_SIZE - (MachineState[Machine.M2a] == State.BUSY && MachineState[Machine.M2b] == State.BUSY ? 0 : 1);
             if (dvdReadyForM3 <= limit && cratesToBeFilledM3 > 0)
@@ -428,7 +427,7 @@ namespace Simulation
                     {
                         BufferA--;
 
-                        long processTime = 24; // 
+                        float processTime = 24f; // 
                         eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, 0));
                     }
                     else
@@ -443,7 +442,7 @@ namespace Simulation
                     {
                         BufferB--;
 
-                        long processTime = 24; // 
+                        float processTime = 24f; // 
                         eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, 0));
                     }
                     else
@@ -459,12 +458,12 @@ namespace Simulation
                 MachineState[machine] = State.BLOCKED;
             }
         }
-        private void scheduleAddDVDToCrate(long time)
+        private void scheduleAddDVDToCrate(float time)
         {
-            long processTime = 5 * 60; // 
+            float processTime = 5 * 60f; // 
             eventList.Add(new Event(time + processTime, Type.ADD_TO_CRATE, Machine.DUMMY, 0));
         }
-        private void scheduleM3(long time, Machine machine)
+        private void scheduleM3(float time, Machine machine)
         {
             // If a full crate is available for input M3, start producing this crate. Else, output the crate and go back to waiting for input. 
             if (dvdReadyForM3 >= CRATE_SIZE && cratesToBeFilledM3 > 0)
@@ -472,7 +471,7 @@ namespace Simulation
                 cratesToBeFilledM3--;
                 dvdReadyForM3 -= CRATE_SIZE;
 
-                long processTime = 10 + 6 + 3 * 60; // 
+                float processTime = 10 + 6 + 3 * 60f; // 
                 eventList.Add(new Event(time + processTime, Type.MACHINE_3, machine, 0));
             }
             else
@@ -480,7 +479,7 @@ namespace Simulation
                 MachineState[machine] = State.IDLE;
             }
         }
-        private void scheduleM4(long time, Machine machine)
+        private void scheduleM4(float time, Machine machine)
         {
             if (dvdBeforeM4Service[machine] == 0)
             {
@@ -490,7 +489,7 @@ namespace Simulation
             else if (dvdReadyForInputM4 > 0)
             {
                 dvdReadyForInputM4--;
-                long processTime = 25; // gemiddelde
+                float processTime = 25f; // gemiddelde
                 eventList.Add(new Event(time + processTime, Type.MACHINE_4, machine, 0));
             }
             else
@@ -499,19 +498,19 @@ namespace Simulation
             }
         }
 
-        private void scheduleM1Breakdown(long time, Machine machine)
+        private void scheduleM1Breakdown(float time, Machine machine)
         {
-            long breakTime = 8 * 60;   // 8 hours exp distr
+            float breakTime = 8 * 60f;   // 8 hours exp distr
             eventList.Add(new Event(time + breakTime, Type.BREAKDOWN_1, machine, 0));
         }
-        private void scheduleM1Repair(long time, Machine machine)
+        private void scheduleM1Repair(float time, Machine machine)
         {
-            long breakTime = 30;   // 2 hours exp distr
+            float breakTime = 2 * 60 * 60f;   // 2 hours exp distr
             eventList.Add(new Event(time + breakTime, Type.REPAIRED_1, machine, 0));
         }
-        private void scheduleM4Repair(long time, Machine machine)
+        private void scheduleM4Repair(float time, Machine machine)
         {
-            long breakTime = 15 * 60;   // 15 min exp distr
+            float breakTime = 15 * 60f;   // 15 min exp distr
             eventList.Add(new Event(time + breakTime, Type.REPAIRED_4, machine, 0));
         }
 

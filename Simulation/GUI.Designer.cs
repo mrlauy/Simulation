@@ -131,7 +131,7 @@
             // labelInProduction
             // 
             this.labelInProduction.AutoSize = true;
-            this.labelInProduction.Location = new System.Drawing.Point(171, 1);
+            this.labelInProduction.Location = new System.Drawing.Point(162, 1);
             this.labelInProduction.Name = "labelInProduction";
             this.labelInProduction.Size = new System.Drawing.Size(102, 13);
             this.labelInProduction.TabIndex = 16;
@@ -149,7 +149,7 @@
             // labelDVDInProduction
             // 
             this.labelDVDInProduction.AutoSize = true;
-            this.labelDVDInProduction.Location = new System.Drawing.Point(279, 1);
+            this.labelDVDInProduction.Location = new System.Drawing.Point(270, 1);
             this.labelDVDInProduction.Name = "labelDVDInProduction";
             this.labelDVDInProduction.Size = new System.Drawing.Size(13, 13);
             this.labelDVDInProduction.TabIndex = 15;
@@ -158,7 +158,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(319, 1);
+            this.label5.Location = new System.Drawing.Point(298, 1);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(86, 13);
             this.label5.TabIndex = 14;
@@ -167,11 +167,12 @@
             // labelDVDProduced
             // 
             this.labelDVDProduced.AutoSize = true;
-            this.labelDVDProduced.Location = new System.Drawing.Point(411, 1);
+            this.labelDVDProduced.Location = new System.Drawing.Point(390, 1);
             this.labelDVDProduced.Name = "labelDVDProduced";
             this.labelDVDProduced.Size = new System.Drawing.Size(13, 13);
             this.labelDVDProduced.TabIndex = 13;
             this.labelDVDProduced.Text = "0";
+            this.labelDVDProduced.Click += new System.EventHandler(this.labelDVDProduced_Click);
             // 
             // label1
             // 
@@ -446,7 +447,7 @@
             // timeLabel
             // 
             this.timeLabel.AutoSize = true;
-            this.timeLabel.Location = new System.Drawing.Point(640, 12);
+            this.timeLabel.Location = new System.Drawing.Point(621, 13);
             this.timeLabel.Name = "timeLabel";
             this.timeLabel.Size = new System.Drawing.Size(13, 13);
             this.timeLabel.TabIndex = 4;

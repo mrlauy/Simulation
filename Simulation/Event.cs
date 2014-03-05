@@ -8,12 +8,12 @@ namespace Simulation
 {
     class Event : IComparer<Event>, IComparable<Event>
     {
-        public long Time { get; private set; }
+        public float Time { get; private set; }
         public Type Type { get; private set; }
         public Machine Machine { get; private set; } // M1A, M2B, M1C or M4A
         public int DVD { get; private set; }
 
-        public Event(long time, Type type, Machine machine, int dvd)
+        public Event(float time, Type type, Machine machine, int dvd)
         {
             Time = time;
             Type = type;
