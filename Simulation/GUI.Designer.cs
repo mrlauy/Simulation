@@ -72,6 +72,9 @@
             this.buttonStop = new System.Windows.Forms.Button();
             this.labelDVDFailed = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.labelProductionHour = new System.Windows.Forms.Label();
+            this.labelDVDProductionHour = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -97,6 +100,9 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.labelDVDProductionHour);
+            this.panel1.Controls.Add(this.labelProductionHour);
+            this.panel1.Controls.Add(this.label9);
             this.panel1.Controls.Add(this.label7);
             this.panel1.Controls.Add(this.labelDVDFailed);
             this.panel1.Controls.Add(this.labelInProduction);
@@ -172,7 +178,6 @@
             this.labelDVDProduced.Size = new System.Drawing.Size(13, 13);
             this.labelDVDProduced.TabIndex = 13;
             this.labelDVDProduced.Text = "0";
-            this.labelDVDProduced.Click += new System.EventHandler(this.labelDVDProduced_Click);
             // 
             // label1
             // 
@@ -510,6 +515,32 @@
             this.label7.TabIndex = 18;
             this.label7.Text = "DVDs failed:";
             // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(281, 21);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(103, 13);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Production per hour:";
+            // 
+            // labelProductionHour
+            // 
+            this.labelProductionHour.AutoSize = true;
+            this.labelProductionHour.Location = new System.Drawing.Point(390, 21);
+            this.labelProductionHour.Name = "labelProductionHour";
+            this.labelProductionHour.Size = new System.Drawing.Size(13, 13);
+            this.labelProductionHour.TabIndex = 20;
+            this.labelProductionHour.Text = "0";
+            // 
+            // labelDVDProductionHour
+            // 
+            this.labelDVDProductionHour.AutoSize = true;
+            this.labelDVDProductionHour.Location = new System.Drawing.Point(441, 21);
+            this.labelDVDProductionHour.Name = "labelDVDProductionHour";
+            this.labelDVDProductionHour.Size = new System.Drawing.Size(0, 13);
+            this.labelDVDProductionHour.TabIndex = 21;
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -600,5 +631,8 @@
         private System.Windows.Forms.Button buttonStop;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Label labelDVDFailed;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label labelProductionHour;
+        private System.Windows.Forms.Label labelDVDProductionHour;
     }
 }

@@ -47,6 +47,9 @@ namespace Simulation
         public int dvdProduced { get; private set; }        // number of DVD produced 
         public int dvdFailed { get; private set; }          // number of DVD that failed during the process
         public int dvdInProduction { get; private set; }    // number of DVD in production
+        // public int dvdProductionHour { get; private set; }    // number of DVD in production
+
+        public float firstFinishedProduct { get; private set; }
 
         // state of the machine in case something has gone wrong
         private Dictionary<Machine, float> TimeM1ShouldHaveFinished;
@@ -74,6 +77,8 @@ namespace Simulation
             dvdProduced = 0;
             dvdFailed = 0;
             dvdInProduction = 0;
+
+            firstFinishedProduct = 0.0f;
 
             TimeM1ShouldHaveFinished = new Dictionary<Machine, float>();
             TimeM1HasBrokenDown = new Dictionary<Machine, float>();
@@ -108,7 +113,7 @@ namespace Simulation
             Time = 0;
             Running = false;
             Paused = false;
-            Speed = 9;
+            Speed = 1;
         }
 
         public void Run()
@@ -299,10 +304,14 @@ namespace Simulation
         private void M4Finished(Event e)
         {
             // update statistics
+            if (firstFinishedProduct <= 0.0f)
+            {
+                firstFinishedProduct = e.Time;
+            }
 
-            // The change the dvd has failed during the production
-            double change = random.NextDouble();
-            if (change > 0.02) // 2% van de dvds
+            // The chance the dvd has failed during the production
+            double chance = random.NextDouble();
+            if (chance > 0.02) // 2% van de dvds
             {
                 dvdProduced++;
             }
@@ -412,7 +421,7 @@ namespace Simulation
             {
                 // keep producing dvd's, schedule new M1Finished
                 dvdInProduction++;
-                float processTime = 59.6f; // gemiddelde
+                float processTime = 50.1f; // gemiddelde
                 eventList.Add(new Event(time + processTime, Type.MACHINE_1, machine, 0));
             }
         }
@@ -500,7 +509,7 @@ namespace Simulation
 
         private void scheduleM1Breakdown(float time, Machine machine)
         {
-            float breakTime = 8 * 60f;   // 8 hours exp distr
+            float breakTime = 8 * 60 * 60f;   // 8 hours exp distr
             eventList.Add(new Event(time + breakTime, Type.BREAKDOWN_1, machine, 0));
         }
         private void scheduleM1Repair(float time, Machine machine)

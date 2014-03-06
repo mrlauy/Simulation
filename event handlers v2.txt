@@ -1,0 +1,144 @@
+Machine 1 Finished:
+	if (machine state = BROKEN) {
+		Store the time the machine should have finished
+	} 
+	else if (machine state = WASBROKEN) {
+		the machine has been broken during producing the dvd
+		schedule a machine 1 finished event over the time the machine has been repaired
+	}
+	else if (machine = machine 1a or machine 1b) {
+		update bufferA
+		schedule the next machine 1 finish event to keep producing
+		
+		if (machine 2a = IDLE) {
+			schedule machine 2a event
+		}
+	} else {
+		update bufferB
+		schedule the next machine 1 finish event
+		
+		if (machine 2b = IDLE) {
+			schedule machine 2b event
+		}
+	}
+	
+Schedule Machine 1:
+	the limit of the buffer is 19 when both machines are producing, otherwise 20
+	if (the output buffer is full) {
+		state of machine = BLOCKED;
+	} else {
+		update dvds in production
+		
+		add machine 1 finished event to event list
+	}
+	
+Breakdown Machine 1: 
+	MachineState of the machine = BROKEN;
+	Time machine 1 has broken down = time
+
+	schedule repair machine 1: 2 hours exp distr.
+
+Repair Machine 1:
+	schedule breakdown machine 1
+	
+	if (the machine did finish in the meantime) {
+		delay of machine = Time machine should have finished - time has broken down
+		
+		machine state of machine = BUSY;
+		schedule machine 1 finished: over the time the machine has been delayed
+	}
+	else 
+	{
+		it is not known when the machine should have finished, so when it happends machine 1 finished event reschedules the event
+	}
+	
+Schedule Machine 1 breakdown: 
+	add breakdown machine 1 event to event list over exp(8 uur)
+	
+Schedule Machine 1 repair:
+	add repaired machine 1 event to event list over exp(2 hour)
+
+	
+Machine 2 Finished:
+	schedule AddDVDtoCrate event
+
+	schedule next machine 2 finished event
+	check if machine was waiting and if so, 
+		schedule Machine 1a and 1b or machine 1c and 1d finish event depending on which machine 2 was finished
+
+
+Schedule Machine 2:
+	// check if there is room left within the crates to be filled by machine 3
+	if (dvd ready for machine 3 <= crate to be filled by machine 3 * 20) {
+		if (buffer > 0) {
+			update buffer -= 1
+			add machine 2 finished event to event list
+		} else {
+			// no input for the machine
+			machine state = IDLE
+		}
+	} else {
+		// the machine will not be able to output the next dvd
+		machine state = BLOCKED
+	}
+
+Add DVD To Crate:
+	update dvd ready for machine 3
+
+	if (a crate is full and machine machine 3 is IDLE) {
+		schedule machine 3 finished event
+	}
+
+Schedule AddDVDToCrate:
+	add ADD_TO_CRATE event to event list over 5 minutes
+
+Machine 3 Finished:
+	update dvd ready for machine 4 with + 20
+	
+	schedule machine 3 finished event
+	if machine 4 is IDLE {
+		schedule machine 4
+	}
+
+Schedule Machine 3:
+	If (a full crate is available for input machine 3) {
+		// start producing this crate. 
+		crates to be filled by machine 3 - 1
+		dvd ready for machine 3 - 20
+		
+		add machine 3 finished event to event list over exp(10) + exp(6) + 3 * 60
+	} else {
+		// output the crate and go back to waiting for input. 
+		machine state = IDLE;
+	}
+
+Machine 4 Finished:
+	update statistics: dvd in production, dvd producted with 98%, dvd failed with 2% chance
+	schedule machine 4 finished event
+	
+	if (the machine emptied a whole crate) {
+		crates to be filled by machine 3 += 1
+		
+		if (machine 2 was blocked by not crates available {
+			lift the blockade, there are empty crates again
+		}
+	}
+
+Schedule Machine 4:
+	if (machine should be serviced) {
+		machine state = BROKEN
+		schedule machine 4 repair event
+	} else if (dvd ready for input machine 4 > 0) {
+		dvd ready for input machine 4 - 1
+		add machine 4 finished event to event list
+	} else {
+		machine state = IDLE
+	}
+
+Repair Machine 4:
+	reset the dvd counter when service is needed
+	machine state of machine 4 = BUSY
+	schedule machine 4 finished event
+
+Schedule Machine 4 Repair:
+	add repaired machine 4 event to event list over exp(15 min)

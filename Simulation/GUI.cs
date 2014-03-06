@@ -81,6 +81,8 @@ namespace Simulation
             SetControlPropertyValue(labelDVDInProduction, "Text", Sim.dvdInProduction.ToString());
             SetControlPropertyValue(labelDVDProduced, "Text", Sim.dvdProduced.ToString());
             SetControlPropertyValue(labelDVDFailed, "Text", Sim.dvdFailed.ToString());
+            // SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / (Sim.Time / 3600), 2).ToString());
+            SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / ((Sim.Time - Sim.firstFinishedProduct) / 3600), 2).ToString());
 
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.ToString());
@@ -132,11 +134,6 @@ namespace Simulation
         private void GUI_FormClosed(object sender, FormClosedEventArgs e)
         {
             Sim.Running = false;
-        }
-
-        private void labelDVDProduced_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }
