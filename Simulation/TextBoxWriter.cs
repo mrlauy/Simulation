@@ -11,25 +11,28 @@ namespace Simulation
 {
     public class TextBoxWriter : TextWriter
     {
+        GUI _parent = null;
         TextBox _output = null;
 
-        public TextBoxWriter(TextBox output)
+        public TextBoxWriter(GUI parent, TextBox output)
         {
+            _parent = parent;
             _output = output;
         }
 
         public override void WriteLine(string value)
         {
             base.WriteLine(value);
-            // _output.AppendText(value.ToString());
-         
-            if (_output.InvokeRequired)
+            if (!_parent.Closing)
             {
-                _output.Invoke((MethodInvoker)(() => _output.AppendText(value.ToString() + Environment.NewLine)));
-            }
-            else
-            {
-                _output.AppendText(value.ToString() + Environment.NewLine);
+                if (_output.InvokeRequired)
+                {
+                    _output.Invoke((MethodInvoker)(() => _output.AppendText(value.ToString() + Environment.NewLine)));
+                }
+                else
+                {
+                    _output.AppendText(value.ToString() + Environment.NewLine);
+                }
             }
         }
 

@@ -15,6 +15,7 @@ namespace Simulation
 {
     public partial class GUI : Form, IUpdate
     {
+        public bool Closing { get; private set; }
         private Simulation Sim;
         private static Dictionary<State, Color> COLOR = new Dictionary<State, Color>
         {
@@ -33,7 +34,7 @@ namespace Simulation
 
         private void Form_Load(object sender, EventArgs e) {
             Sim = new Simulation(this);
-            Console.SetOut(new TextBoxWriter(txtConsole));
+            Console.SetOut(new TextBoxWriter(this, txtConsole));
             Console.WriteLine("Now redirecting output to the text box");
            
             speedBar.Value =(int)(Math.Sqrt((double)(400 - Sim.Speed)) * 10);
@@ -77,7 +78,7 @@ namespace Simulation
 
         public void UpdateSim()
         {
-            SetControlPropertyValue(timeLabel, "Text", Sim.Time.ToString());
+            SetControlPropertyValue(timeLabel, "Text", Math.Round(Sim.Time).ToString());
             SetControlPropertyValue(labelDVDInProduction, "Text", Sim.dvdInProduction.ToString());
             SetControlPropertyValue(labelDVDProduced, "Text", Sim.dvdProduced.ToString());
             SetControlPropertyValue(labelDVDFailed, "Text", Sim.dvdFailed.ToString());
@@ -131,9 +132,22 @@ namespace Simulation
             Console.WriteLine(speed.ToString() + "-" + speedBar.Value);
         }
 
-        private void GUI_FormClosed(object sender, FormClosedEventArgs e)
+        private void GUI_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // base.OnFormClosing(e);
+            if (Closing) return;
+            e.Cancel = true;
+            System.Windows.Forms.Timer tmr = new System.Windows.Forms.Timer();
+            tmr.Tick += Tmr_Tick;
+            tmr.Start();
+            Closing = true;
+
             Sim.Running = false;
+        }
+        void Tmr_Tick(object sender, EventArgs e)
+        {
+            ((System.Windows.Forms.Timer)sender).Stop();
+            this.Close();
         }
     }
 }

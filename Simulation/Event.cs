@@ -8,12 +8,12 @@ namespace Simulation
 {
     class Event : IComparer<Event>, IComparable<Event>
     {
-        public float Time { get; private set; }
+        public double Time { get; private set; }
         public Type Type { get; private set; }
         public Machine Machine { get; private set; } // M1A, M2B, M1C or M4A
         public int DVD { get; private set; }
 
-        public Event(float time, Type type, Machine machine, int dvd)
+        public Event(double time, Type type, Machine machine, int dvd)
         {
             Time = time;
             Type = type;
@@ -79,7 +79,7 @@ namespace Simulation
 
         public override string ToString()
         {
-            return "E: [time=" + Time + ", \ttype=" + Type + ", dvd=" + DVD + ", machine=" + Machine + "]";
+            return "E: [time=" + Time + ", \ttype=" + Type + (Machine != Machine.DUMMY ? ", machine=" + Machine : "") + "]"; //  +", dvd=" + DVD + "]";
         }
     }
 }

@@ -30,6 +30,11 @@
         {
             this.buttonStart = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.labelDVDProductionHour = new System.Windows.Forms.Label();
+            this.labelProductionHour = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label7 = new System.Windows.Forms.Label();
+            this.labelDVDFailed = new System.Windows.Forms.Label();
             this.labelInProduction = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.labelDVDInProduction = new System.Windows.Forms.Label();
@@ -70,11 +75,6 @@
             this.speedBar = new System.Windows.Forms.HScrollBar();
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
-            this.labelDVDFailed = new System.Windows.Forms.Label();
-            this.label7 = new System.Windows.Forms.Label();
-            this.label9 = new System.Windows.Forms.Label();
-            this.labelProductionHour = new System.Windows.Forms.Label();
-            this.labelDVDProductionHour = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -133,6 +133,50 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(563, 204);
             this.panel1.TabIndex = 2;
+            // 
+            // labelDVDProductionHour
+            // 
+            this.labelDVDProductionHour.AutoSize = true;
+            this.labelDVDProductionHour.Location = new System.Drawing.Point(441, 21);
+            this.labelDVDProductionHour.Name = "labelDVDProductionHour";
+            this.labelDVDProductionHour.Size = new System.Drawing.Size(0, 13);
+            this.labelDVDProductionHour.TabIndex = 21;
+            // 
+            // labelProductionHour
+            // 
+            this.labelProductionHour.AutoSize = true;
+            this.labelProductionHour.Location = new System.Drawing.Point(390, 21);
+            this.labelProductionHour.Name = "labelProductionHour";
+            this.labelProductionHour.Size = new System.Drawing.Size(13, 13);
+            this.labelProductionHour.TabIndex = 20;
+            this.labelProductionHour.Text = "0";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(281, 21);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(103, 13);
+            this.label9.TabIndex = 19;
+            this.label9.Text = "Production per hour:";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(441, 1);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(66, 13);
+            this.label7.TabIndex = 18;
+            this.label7.Text = "DVDs failed:";
+            // 
+            // labelDVDFailed
+            // 
+            this.labelDVDFailed.AutoSize = true;
+            this.labelDVDFailed.Location = new System.Drawing.Point(513, 1);
+            this.labelDVDFailed.Name = "labelDVDFailed";
+            this.labelDVDFailed.Size = new System.Drawing.Size(13, 13);
+            this.labelDVDFailed.TabIndex = 17;
+            this.labelDVDFailed.Text = "0";
             // 
             // labelInProduction
             // 
@@ -497,50 +541,6 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
-            // labelDVDFailed
-            // 
-            this.labelDVDFailed.AutoSize = true;
-            this.labelDVDFailed.Location = new System.Drawing.Point(513, 1);
-            this.labelDVDFailed.Name = "labelDVDFailed";
-            this.labelDVDFailed.Size = new System.Drawing.Size(13, 13);
-            this.labelDVDFailed.TabIndex = 17;
-            this.labelDVDFailed.Text = "0";
-            // 
-            // label7
-            // 
-            this.label7.AutoSize = true;
-            this.label7.Location = new System.Drawing.Point(441, 1);
-            this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(66, 13);
-            this.label7.TabIndex = 18;
-            this.label7.Text = "DVDs failed:";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(281, 21);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(103, 13);
-            this.label9.TabIndex = 19;
-            this.label9.Text = "Production per hour:";
-            // 
-            // labelProductionHour
-            // 
-            this.labelProductionHour.AutoSize = true;
-            this.labelProductionHour.Location = new System.Drawing.Point(390, 21);
-            this.labelProductionHour.Name = "labelProductionHour";
-            this.labelProductionHour.Size = new System.Drawing.Size(13, 13);
-            this.labelProductionHour.TabIndex = 20;
-            this.labelProductionHour.Text = "0";
-            // 
-            // labelDVDProductionHour
-            // 
-            this.labelDVDProductionHour.AutoSize = true;
-            this.labelDVDProductionHour.Location = new System.Drawing.Point(441, 21);
-            this.labelDVDProductionHour.Name = "labelDVDProductionHour";
-            this.labelDVDProductionHour.Size = new System.Drawing.Size(0, 13);
-            this.labelDVDProductionHour.TabIndex = 21;
-            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -556,7 +556,7 @@
             this.Controls.Add(this.buttonStart);
             this.Name = "GUI";
             this.Text = "GUI";
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.GUI_FormClosed);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.GUI_FormClosing);
             this.Load += new System.EventHandler(this.Form_Load);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
