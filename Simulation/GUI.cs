@@ -88,9 +88,11 @@ namespace Simulation
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.ToString());
 
-            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3.ToString());
-            SetControlPropertyValue(labelNumberOfCrates, "Text", Sim.cratesToBeFilledM3.ToString());
-            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4.ToString());
+            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3a.ToString());
+            SetControlPropertyValue(labelCrateContentb, "Text", Sim.dvdReadyForM3b.ToString());
+
+            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4a.ToString());
+            SetControlPropertyValue(labelDVDoutputb, "Text", Sim.dvdReadyForInputM4b.ToString());
 
             SetControlPropertyValue(panelM1A, "BackColor", COLOR[Sim.MachineState[Machine.M1a]]);
             SetControlPropertyValue(panelM1B, "BackColor", COLOR[Sim.MachineState[Machine.M1b]]);
