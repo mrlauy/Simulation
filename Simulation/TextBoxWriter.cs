@@ -23,7 +23,7 @@ namespace Simulation
         public override void WriteLine(string value)
         {
             base.WriteLine(value);
-            if (!_parent.Closing)
+            if (!_parent._Closing)
             {
                 if (_output.InvokeRequired)
                 {

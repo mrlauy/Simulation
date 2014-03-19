@@ -79,7 +79,7 @@ namespace Simulation
 
         public override string ToString()
         {
-            return "E: [time=" + Time + ", \ttype=" + Type + (Machine != Machine.DUMMY ? ", machine=" + Machine : "") + "]"; //  +", dvd=" + DVD + "]";
+            return "E: [time=" + Time + ", \ttype=" + Type + (Machine != Machine.DUMMY ? ", machine=" + Machine : "")  +", dvd=" + DVD + "]";
         }
     }
 }

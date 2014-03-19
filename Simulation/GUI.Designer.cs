@@ -42,7 +42,7 @@
             this.labelDVDProduced = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.labelDVDoutput = new System.Windows.Forms.Label();
-            this.labelCrateContent = new System.Windows.Forms.Label();
+            this.labelCrateContentb = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -75,6 +75,10 @@
             this.speedBar = new System.Windows.Forms.HScrollBar();
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
+            this.label8 = new System.Windows.Forms.Label();
+            this.labelCrateContent = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.labelDVDoutputb = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -100,6 +104,10 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.labelDVDoutputb);
+            this.panel1.Controls.Add(this.label11);
+            this.panel1.Controls.Add(this.labelCrateContentb);
+            this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.labelDVDProductionHour);
             this.panel1.Controls.Add(this.labelProductionHour);
             this.panel1.Controls.Add(this.label9);
@@ -541,6 +549,42 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(245, 80);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(38, 13);
+            this.label8.TabIndex = 22;
+            this.label8.Text = "DVDs:";
+            // 
+            // labelCrateContent
+            // 
+            this.labelCrateContentb.AutoSize = true;
+            this.labelCrateContentb.Location = new System.Drawing.Point(289, 80);
+            this.labelCrateContentb.Name = "labelCrateContentb";
+            this.labelCrateContentb.Size = new System.Drawing.Size(13, 13);
+            this.labelCrateContentb.TabIndex = 23;
+            this.labelCrateContentb.Text = "0";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(397, 121);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(38, 13);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "DVDs:";
+            // 
+            // labelDVDoutputb
+            // 
+            this.labelDVDoutputb.AutoSize = true;
+            this.labelDVDoutputb.Location = new System.Drawing.Point(441, 121);
+            this.labelDVDoutputb.Name = "labelDVDoutputb";
+            this.labelDVDoutputb.Size = new System.Drawing.Size(13, 13);
+            this.labelDVDoutputb.TabIndex = 25;
+            this.labelDVDoutputb.Text = "0";
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -617,7 +661,7 @@
         private System.Windows.Forms.Label labelM3B;
         private System.Windows.Forms.Panel panelM3A;
         private System.Windows.Forms.Label labelM3A;
-        private System.Windows.Forms.Label labelCrateContent;
+        private System.Windows.Forms.Label labelCrateContentb;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label labelDVDoutput;
@@ -634,5 +678,9 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Label labelProductionHour;
         private System.Windows.Forms.Label labelDVDProductionHour;
+        private System.Windows.Forms.Label labelDVDoutputb;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.Label labelCrateContent;
+        private System.Windows.Forms.Label label8;
     }
 }

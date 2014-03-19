@@ -15,7 +15,7 @@ namespace Simulation
 {
     public partial class GUI : Form, IUpdate
     {
-        public bool Closing { get; private set; }
+        public bool _Closing { get; private set; }
         private Simulation Sim;
         private static Dictionary<State, Color> COLOR = new Dictionary<State, Color>
         {
@@ -88,9 +88,11 @@ namespace Simulation
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.ToString());
 
-            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3.ToString());
-            SetControlPropertyValue(labelNumberOfCrates, "Text", Sim.cratesToBeFilledM3.ToString());
-            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4.ToString());
+            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3a.ToString());
+            SetControlPropertyValue(labelCrateContentb, "Text", Sim.dvdReadyForM3b.ToString());
+
+            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4a.ToString());
+            SetControlPropertyValue(labelDVDoutputb, "Text", Sim.dvdReadyForInputM4b.ToString());
 
             SetControlPropertyValue(panelM1A, "BackColor", COLOR[Sim.MachineState[Machine.M1a]]);
             SetControlPropertyValue(panelM1B, "BackColor", COLOR[Sim.MachineState[Machine.M1b]]);
@@ -135,12 +137,12 @@ namespace Simulation
         private void GUI_FormClosing(object sender, FormClosingEventArgs e)
         {
             // base.OnFormClosing(e);
-            if (Closing) return;
+            if (_Closing) return;
             e.Cancel = true;
             System.Windows.Forms.Timer tmr = new System.Windows.Forms.Timer();
             tmr.Tick += Tmr_Tick;
             tmr.Start();
-            Closing = true;
+            _Closing = true;
 
             Sim.Running = false;
         }
