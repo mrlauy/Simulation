@@ -104,11 +104,7 @@
             // 
             this.panel1.Controls.Add(this.labelDVDoutputb);
             this.panel1.Controls.Add(this.label11);
-<<<<<<< HEAD
-            this.panel1.Controls.Add(this.labelCrateContentb);
-=======
             this.panel1.Controls.Add(this.labelCrateContent);
->>>>>>> 7886a689c1c8cce984029a64c3b1704b21f977de
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.labelDVDProductionHour);
             this.panel1.Controls.Add(this.labelProductionHour);
@@ -542,21 +538,12 @@
             // 
             // labelCrateContent
             // 
-<<<<<<< HEAD
-            this.labelCrateContentb.AutoSize = true;
-            this.labelCrateContentb.Location = new System.Drawing.Point(289, 80);
-            this.labelCrateContentb.Name = "labelCrateContentb";
-            this.labelCrateContentb.Size = new System.Drawing.Size(13, 13);
-            this.labelCrateContentb.TabIndex = 23;
-            this.labelCrateContentb.Text = "0";
-=======
             this.labelCrateContent.AutoSize = true;
             this.labelCrateContent.Location = new System.Drawing.Point(289, 80);
             this.labelCrateContent.Name = "labelCrateContent";
             this.labelCrateContent.Size = new System.Drawing.Size(13, 13);
             this.labelCrateContent.TabIndex = 23;
             this.labelCrateContent.Text = "0";
->>>>>>> 7886a689c1c8cce984029a64c3b1704b21f977de
             // 
             // label11
             // 

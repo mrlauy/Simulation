@@ -47,6 +47,7 @@ namespace Simulation
             {   
                 // Create the thread object, passing in the Alpha.Beta method
                 // via a ThreadStart delegate. This does not start the thread.
+                Sim.Initialize();
 
                 Thread thread = new Thread(new ThreadStart(Sim.Run));
 
@@ -85,14 +86,14 @@ namespace Simulation
             // SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / (Sim.Time / 3600), 2).ToString());
             SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / ((Sim.Time - Sim.firstFinishedProduct) / 3600), 2).ToString());
 
-            SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.ToString());
-            SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.ToString());
+            SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.Count.ToString());
+            SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.Count.ToString());
 
-            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3a.ToString());
-            SetControlPropertyValue(labelCrateContentb, "Text", Sim.dvdReadyForM3b.ToString());
+            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3a.Count.ToString());
+            SetControlPropertyValue(labelCrateContentb, "Text", Sim.dvdReadyForM3b.Count.ToString());
 
-            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4a.ToString());
-            SetControlPropertyValue(labelDVDoutputb, "Text", Sim.dvdReadyForInputM4b.ToString());
+            SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4a.Count.ToString());
+            SetControlPropertyValue(labelDVDoutputb, "Text", Sim.dvdReadyForInputM4b.Count.ToString());
 
             SetControlPropertyValue(panelM1A, "BackColor", COLOR[Sim.MachineState[Machine.M1a]]);
             SetControlPropertyValue(panelM1B, "BackColor", COLOR[Sim.MachineState[Machine.M1b]]);
