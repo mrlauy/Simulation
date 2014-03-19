@@ -44,9 +44,7 @@
             this.labelDVDoutput = new System.Windows.Forms.Label();
             this.labelCrateContentb = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.labelNumberOfCrates = new System.Windows.Forms.Label();
             this.panelM4B = new System.Windows.Forms.Panel();
             this.labelM4B = new System.Windows.Forms.Label();
             this.panelM4A = new System.Windows.Forms.Panel();
@@ -106,7 +104,11 @@
             // 
             this.panel1.Controls.Add(this.labelDVDoutputb);
             this.panel1.Controls.Add(this.label11);
+<<<<<<< HEAD
             this.panel1.Controls.Add(this.labelCrateContentb);
+=======
+            this.panel1.Controls.Add(this.labelCrateContent);
+>>>>>>> 7886a689c1c8cce984029a64c3b1704b21f977de
             this.panel1.Controls.Add(this.label8);
             this.panel1.Controls.Add(this.labelDVDProductionHour);
             this.panel1.Controls.Add(this.labelProductionHour);
@@ -120,11 +122,9 @@
             this.panel1.Controls.Add(this.labelDVDProduced);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.labelDVDoutput);
-            this.panel1.Controls.Add(this.labelCrateContent);
+            this.panel1.Controls.Add(this.labelCrateContentb);
             this.panel1.Controls.Add(this.label4);
-            this.panel1.Controls.Add(this.label3);
             this.panel1.Controls.Add(this.label2);
-            this.panel1.Controls.Add(this.labelNumberOfCrates);
             this.panel1.Controls.Add(this.panelM4B);
             this.panel1.Controls.Add(this.panelM4A);
             this.panel1.Controls.Add(this.panelM3B);
@@ -234,7 +234,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(397, 93);
+            this.label1.Location = new System.Drawing.Point(397, 80);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(38, 13);
             this.label1.TabIndex = 12;
@@ -243,38 +243,29 @@
             // labelDVDoutput
             // 
             this.labelDVDoutput.AutoSize = true;
-            this.labelDVDoutput.Location = new System.Drawing.Point(441, 93);
+            this.labelDVDoutput.Location = new System.Drawing.Point(441, 80);
             this.labelDVDoutput.Name = "labelDVDoutput";
             this.labelDVDoutput.Size = new System.Drawing.Size(13, 13);
             this.labelDVDoutput.TabIndex = 11;
             this.labelDVDoutput.Text = "0";
             // 
-            // labelCrateContent
+            // labelCrateContentb
             // 
-            this.labelCrateContent.AutoSize = true;
-            this.labelCrateContent.Location = new System.Drawing.Point(289, 112);
-            this.labelCrateContent.Name = "labelCrateContent";
-            this.labelCrateContent.Size = new System.Drawing.Size(13, 13);
-            this.labelCrateContent.TabIndex = 10;
-            this.labelCrateContent.Text = "0";
+            this.labelCrateContentb.AutoSize = true;
+            this.labelCrateContentb.Location = new System.Drawing.Point(291, 121);
+            this.labelCrateContentb.Name = "labelCrateContentb";
+            this.labelCrateContentb.Size = new System.Drawing.Size(13, 13);
+            this.labelCrateContentb.TabIndex = 10;
+            this.labelCrateContentb.Text = "0";
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(245, 112);
+            this.label4.Location = new System.Drawing.Point(247, 121);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(38, 13);
             this.label4.TabIndex = 9;
             this.label4.Text = "DVDs:";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(243, 93);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(40, 13);
-            this.label3.TabIndex = 8;
-            this.label3.Text = "Crates:";
             // 
             // label2
             // 
@@ -284,15 +275,6 @@
             this.label2.Size = new System.Drawing.Size(39, 13);
             this.label2.TabIndex = 7;
             this.label2.Text = "buffers";
-            // 
-            // labelNumberOfCrates
-            // 
-            this.labelNumberOfCrates.AutoSize = true;
-            this.labelNumberOfCrates.Location = new System.Drawing.Point(289, 93);
-            this.labelNumberOfCrates.Name = "labelNumberOfCrates";
-            this.labelNumberOfCrates.Size = new System.Drawing.Size(13, 13);
-            this.labelNumberOfCrates.TabIndex = 6;
-            this.labelNumberOfCrates.Text = "0";
             // 
             // panelM4B
             // 
@@ -560,12 +542,21 @@
             // 
             // labelCrateContent
             // 
+<<<<<<< HEAD
             this.labelCrateContentb.AutoSize = true;
             this.labelCrateContentb.Location = new System.Drawing.Point(289, 80);
             this.labelCrateContentb.Name = "labelCrateContentb";
             this.labelCrateContentb.Size = new System.Drawing.Size(13, 13);
             this.labelCrateContentb.TabIndex = 23;
             this.labelCrateContentb.Text = "0";
+=======
+            this.labelCrateContent.AutoSize = true;
+            this.labelCrateContent.Location = new System.Drawing.Point(289, 80);
+            this.labelCrateContent.Name = "labelCrateContent";
+            this.labelCrateContent.Size = new System.Drawing.Size(13, 13);
+            this.labelCrateContent.TabIndex = 23;
+            this.labelCrateContent.Text = "0";
+>>>>>>> 7886a689c1c8cce984029a64c3b1704b21f977de
             // 
             // label11
             // 
@@ -650,9 +641,7 @@
         private System.Windows.Forms.Label labelM2A;
         private System.Windows.Forms.Label labelBufferB;
         private System.Windows.Forms.TextBox txtConsole;
-        private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.Label labelNumberOfCrates;
         private System.Windows.Forms.Panel panelM4B;
         private System.Windows.Forms.Label labelM4B;
         private System.Windows.Forms.Panel panelM4A;
