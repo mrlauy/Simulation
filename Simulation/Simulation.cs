@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -7,6 +8,7 @@ using System.Threading.Tasks;
 using System.Collections;
 using System.Diagnostics;
 using System.IO;
+using System.Windows.Forms.DataVisualization.Charting;
 
 namespace Simulation
 {
@@ -19,11 +21,12 @@ namespace Simulation
     {
         private IUpdate parent;
 
-        private static int RUN_LENGTH = 100000;
+        private static int RUN_LENGTH = 10000;
         private TreeSet<Event> eventList;
         public bool Paused { get; set; }            // is the simulation paused
         public bool Running { get; set; }   // is the simulation running
         public int Speed { get; set; }   // Simulation speed
+        public bool Feedback { get; set; } // If simulation gives feedback
 
         private Random random;
 
@@ -44,20 +47,19 @@ namespace Simulation
         public Queue<int> dvdReadyForInputM4b { get; private set; }         // number of dvd ready to be processed by machine 4, 
         //   at least one dvd ready means there is a crate, 21 dvd ready means that there are two crates 
 
-        public int dvdCounter { get; private set; }         // counter for how many dvds the production has started to produce
-        public int dvdProduced { get; private set; }        // number of DVD produced 
-        public int dvdFailed { get; private set; }          // number of DVD that failed during the process
-        public int dvdInProduction { get; private set; }    // number of DVD in production
+        public int dvdCounter { get; private set; }             // counter for how many dvds the production has started to produce
+        public int dvdInProduction { get; private set; }        // number of DVD in production
+        public List<double> dvdProduced { get; private set; }   // time of dvd is finished
+        public List<double> dvdFailed { get; private set; }     // times that a DVD failed during the process
+        public List<double> dvdStartTimes { get; private set; }    // time a dvd starts production
         public List<double> dvdThroughput { get; private set; }    // throughput time of dvds
 
         public Dictionary<int, double> StartTimes { get; private set; }  // start time of dvd id's
         public Dictionary<Machine, double> BusyTime { get; private set; } // time a machine is busy
-        public Dictionary<Machine, double> BreakdownTime { get; private set; } // time a machine is broken
+        public Dictionary<Machine, double> IdleTime { get; private set; } // time a machine is broken
         public Dictionary<Machine, double> BlockedTime { get; private set; } // time a machine is blocked
 
         public double[] m1tijden = new double[500];
-
-        public double firstFinishedProduct { get; private set; }
 
         // state of the machine in case something has gone wrong
         private Dictionary<Machine, Event> M1ShouldHaveFinished;
@@ -66,6 +68,7 @@ namespace Simulation
 
         public Simulation(IUpdate parent)
         {
+            Feedback = true;
             this.parent = parent;
             Initialize();
         }
@@ -91,10 +94,10 @@ namespace Simulation
 
             // initiate statistic counters
             dvdCounter = 0;
-            dvdProduced = 0;
-            dvdFailed = 0;
             dvdInProduction = 0;
-            firstFinishedProduct = 0;
+            dvdFailed = new List<double>();
+            dvdStartTimes = new List<double>();
+            dvdProduced = new List<double>();
             dvdThroughput = new List<double>();
 
             StartTimes = new Dictionary<int, double>();
@@ -109,17 +112,17 @@ namespace Simulation
             BusyTime[Machine.M3b] = 0;
             BusyTime[Machine.M4a] = 0;
             BusyTime[Machine.M4b] = 0;
-            BreakdownTime = new Dictionary<Machine, double>();
-            BreakdownTime[Machine.M1a] = 0;
-            BreakdownTime[Machine.M1b] = 0;
-            BreakdownTime[Machine.M1c] = 0;
-            BreakdownTime[Machine.M1d] = 0;
-            BreakdownTime[Machine.M2a] = 0;
-            BreakdownTime[Machine.M2b] = 0;
-            BreakdownTime[Machine.M3a] = 0;
-            BreakdownTime[Machine.M3b] = 0;
-            BreakdownTime[Machine.M4a] = 0;
-            BreakdownTime[Machine.M4b] = 0;
+            IdleTime = new Dictionary<Machine, double>();
+            IdleTime[Machine.M1a] = 0;
+            IdleTime[Machine.M1b] = 0;
+            IdleTime[Machine.M1c] = 0;
+            IdleTime[Machine.M1d] = 0;
+            IdleTime[Machine.M2a] = 0;
+            IdleTime[Machine.M2b] = 0;
+            IdleTime[Machine.M3a] = 0;
+            IdleTime[Machine.M3b] = 0;
+            IdleTime[Machine.M4a] = 0;
+            IdleTime[Machine.M4b] = 0;
             BlockedTime = new Dictionary<Machine, double>();
             BlockedTime[Machine.M1a] = 0;
             BlockedTime[Machine.M1b] = 0;
@@ -170,6 +173,7 @@ namespace Simulation
         public void Run()
         {
             Running = true;
+            // SaveStatistics();
             Console.WriteLine("Simulation running");
             while (Running)
             {
@@ -211,14 +215,26 @@ namespace Simulation
                             Running = false;
                             break;
                         default:
-                            Console.WriteLine("FAIL!" + e.Type);
+                            Console.WriteLine("Forgot to do somewhing!" + e.Type);
                             break;
                     }
 
-                    parent.UpdateSim();
+                    if (Feedback)
+                    {
+                        parent.UpdateSim();
+                    }
                 }
-                Thread.Sleep(Speed);
+
+                if (!Feedback) { 
+                    Thread.Sleep(Speed);
+                }
             }
+
+            Feedback = true;
+            parent.UpdateOut();
+            parent.UpdateSim();
+
+            SaveStatistics();
             Console.WriteLine("Simulation finished");
         }
 
@@ -247,10 +263,96 @@ namespace Simulation
             {
                 BlockedTime[machine] += elapsedTime;
             }
-            else if (MachineState[machine] == State.BROKEN)
+            else if (MachineState[machine] == State.IDLE)
             {
-                BreakdownTime[machine] += elapsedTime;
+                IdleTime[machine] += elapsedTime;
             }
+        }
+
+        private void SaveStatistics()
+        {
+            Console.WriteLine("Simulation Saving Statistics");
+
+            string[] dirs = Directory.GetDirectories(Directory.GetCurrentDirectory(), "run*");
+            string directory = Directory.GetCurrentDirectory() + "\\run" + dirs.Count();
+
+            Directory.CreateDirectory(directory);
+
+            StoreFile(directory, "start", dvdStartTimes);
+            StoreFile(directory, "failed", dvdFailed);
+            StoreFile(directory, "finished", dvdProduced);
+
+            StoreFile(directory, "throughput", dvdThroughput);
+
+            StoreStatistics(directory);
+
+        }
+
+        private void StoreStatistics(string dir)
+        {
+            using (StreamWriter file = new StreamWriter(dir + "\\statistics.txt"))
+            {
+                file.WriteLine("runTime:\t{0:D}", RUN_LENGTH);
+                file.WriteLine("buffer:\t{0:D}", BUFFER_SIZE);
+                file.WriteLine("batch:\t{0:D}", CRATE_SIZE);
+                file.WriteLine();
+                file.WriteLine("dvdProduced:\t{0:D}", dvdProduced.Count);
+                file.WriteLine("dvdProduced:\t{0:F}", dvdProduced.Count / (RUN_LENGTH / 3600.0));
+                file.WriteLine("dvdProduced:\t{0:F}", (dvdProduced.Count > 0 ? dvdProduced.Count / ((RUN_LENGTH - dvdProduced.First()) / 3600) : 0));
+
+                if (dvdThroughput.Count > 0)
+                {
+                    file.WriteLine("avgThroughput:\t{0:F}", dvdThroughput.Min());
+                    file.WriteLine("minThroughput:\t{0:F}", dvdThroughput.Average());
+                    file.WriteLine("maxThroughput:\t{0:F}", dvdThroughput.Max());
+                }
+                else
+                {
+                    file.WriteLine("avgThroughput:\r\nminThroughput\r\nmaxThroughput");
+                }
+
+                file.WriteLine();
+                file.WriteLine("Machine: Idle, Busy, Blocked, Broken time");
+                file.WriteLine(MachineStatistic(Machine.M1a));
+                file.WriteLine(MachineStatistic(Machine.M1b));
+                file.WriteLine(MachineStatistic(Machine.M1c));
+                file.WriteLine(MachineStatistic(Machine.M1d));
+                file.WriteLine(MachineStatistic(Machine.M2a));
+                file.WriteLine(MachineStatistic(Machine.M2b));
+                file.WriteLine(MachineStatistic(Machine.M3a));
+                file.WriteLine(MachineStatistic(Machine.M3b));
+                file.WriteLine(MachineStatistic(Machine.M4a));
+                file.WriteLine(MachineStatistic(Machine.M4b));
+            }
+        }
+
+        private string MachineStatistic(Machine machine) {
+            return String.Format("{0}\t{1:F}\t{2:F}\t{3:F}\t{4:F}", machine, IdleTime[machine], BusyTime[machine], BlockedTime[machine], Time - IdleTime[machine] - BusyTime[machine] - BlockedTime[machine]);
+        }
+
+        private void StoreFile(string dir, string filename, IList list)
+        {
+            using (StreamWriter file = new StreamWriter(dir + "\\" + filename + ".txt"))
+            {
+                foreach (var item in list)
+                {
+                    file.WriteLine(item);
+                }
+            }
+        }
+
+        private void PlotGraph(Series series, string filename)
+        {
+            FileStream outputStream = new FileStream(filename + ".png", FileMode.OpenOrCreate);
+
+            using (var ch = new Chart())
+            {
+                ch.ChartAreas.Add(new ChartArea());
+                ch.Series.Add(series);
+                ch.SaveImage(outputStream, ChartImageFormat.Png);
+            }
+            outputStream.Flush();
+            outputStream.Close();
         }
 
         private void M1Finished(Event e)
@@ -430,20 +532,15 @@ namespace Simulation
         private void M4Finished(Event e)
         {
             // update statistics
-            if (firstFinishedProduct < 1)
-            {
-                firstFinishedProduct = e.Time;
-            }
-
             // The chance the dvd has failed during the production
             double chance = random.NextDouble();
             if (chance > 0.02) // 2% van de dvds
             {
-                dvdProduced++;
+                dvdProduced.Add(e.Time);
             }
             else
             {
-                dvdFailed++;
+                dvdFailed.Add(e.Time);
             }
             dvdInProduction--;
             dvdBeforeM4Service[e.Machine]--;
@@ -571,6 +668,7 @@ namespace Simulation
 
                 // keep track which dvd starts production
                 StartTimes[dvdCounter] = time;
+                dvdStartTimes.Add(time);
 
                 //we have an array with our sorted observed procution times
                 //these times variate between 0-541 seconds.

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Threading;
 using System.Reflection;
 using System.Diagnostics;
+using System.IO;
 
 namespace Simulation
 {
@@ -23,7 +24,7 @@ namespace Simulation
             {State.BUSY, Color.Green},
             {State.BLOCKED, Color.Blue},
             {State.BROKEN, Color.DarkGray},
-            {State.BBROKEN, Color.Yellow},
+            {State.BBROKEN, Color.DarkGray},
             {State.WASBROKEN, Color.Gray}
         };
 
@@ -32,19 +33,26 @@ namespace Simulation
             InitializeComponent();
         }
 
-        private void Form_Load(object sender, EventArgs e) {
+        private void Form_Load(object sender, EventArgs e)
+        {
             Sim = new Simulation(this);
-            Console.SetOut(new TextBoxWriter(this, txtConsole));
-            Console.WriteLine("Now redirecting output to the text box");
-           
-            speedBar.Value =(int)(Math.Sqrt((double)(400 - Sim.Speed)) * 10);
+
+            // Set console output to textbox
+            checkFeedback.Checked = Sim.Feedback;
+            if (Sim.Feedback)
+            {
+                Console.SetOut(new TextBoxWriter(this, txtConsole));
+            }
+            Console.WriteLine("Redirecting output to the text box");
+
+            speedBar.Value = (int)(Math.Sqrt((double)(400 - Sim.Speed)) * 10);
             labelSpeed.Text = Sim.Speed.ToString();
         }
 
         private void buttonStart_Click(object sender, EventArgs e)
         {
             if (!Sim.Running)
-            {   
+            {
                 // Create the thread object, passing in the Alpha.Beta method
                 // via a ThreadStart delegate. This does not start the thread.
                 Sim.Initialize();
@@ -54,14 +62,17 @@ namespace Simulation
                 // Start the thread
                 thread.Start();
                 buttonStart.Text = "Pause";
+                checkFeedback.Enabled = false;
             }
             else if (Sim.Paused)
             {
                 Sim.Paused = false;
                 buttonStart.Text = "Pause";
+                checkFeedback.Enabled = false;
             }
             else
             {
+                checkFeedback.Enabled = true;
                 Sim.Paused = true;
                 buttonStart.Text = "Start";
             }
@@ -81,10 +92,9 @@ namespace Simulation
         {
             SetControlPropertyValue(timeLabel, "Text", Math.Round(Sim.Time).ToString());
             SetControlPropertyValue(labelDVDInProduction, "Text", Sim.dvdInProduction.ToString());
-            SetControlPropertyValue(labelDVDProduced, "Text", Sim.dvdProduced.ToString());
-            SetControlPropertyValue(labelDVDFailed, "Text", Sim.dvdFailed.ToString());
-            // SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / (Sim.Time / 3600), 2).ToString());
-            SetControlPropertyValue(labelProductionHour, "Text", Math.Round(Sim.dvdProduced / ((Sim.Time - Sim.firstFinishedProduct) / 3600), 2).ToString());
+            SetControlPropertyValue(labelDVDProduced, "Text", Sim.dvdProduced.Count.ToString());
+            SetControlPropertyValue(labelDVDFailed, "Text", Sim.dvdFailed.Count.ToString());
+            SetControlPropertyValue(labelProductionHour, "Text", (Sim.dvdProduced.Count > 0 ? Math.Round(Sim.dvdProduced.Count / ((Sim.Time - Sim.dvdProduced.First()) / 3600), 2).ToString() : "0"));
 
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.Count.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.Count.ToString());
@@ -105,6 +115,23 @@ namespace Simulation
             SetControlPropertyValue(panelM3B, "BackColor", COLOR[Sim.MachineState[Machine.M3b]]);
             SetControlPropertyValue(panelM4A, "BackColor", COLOR[Sim.MachineState[Machine.M4a]]);
             SetControlPropertyValue(panelM4B, "BackColor", COLOR[Sim.MachineState[Machine.M4b]]);
+        }
+
+        public void UpdateOut()
+        {
+            SetControlPropertyValue(checkFeedback, "Checked", Sim.Feedback);
+
+            if (Sim.Feedback)
+            {
+                Console.WriteLine("Redirecting output to the text box");
+                Console.SetOut(new TextBoxWriter(this, txtConsole));
+            }
+            else
+            {
+                Console.WriteLine("Stop Redirecting output to the text box");
+                StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
+                Console.SetOut(standardOutput);
+            }
         }
 
         delegate void SetControlValueCallback(Control oControl, string propName, object propValue);
@@ -128,7 +155,8 @@ namespace Simulation
                 }
             }
         }
-        private void scrSize_Scroll(object sender, System.Windows.Forms.ScrollEventArgs e) {
+        private void scrSize_Scroll(object sender, System.Windows.Forms.ScrollEventArgs e)
+        {
             int speed = 400 - (int)Math.Round(Math.Pow(speedBar.Value / 10.0, 2)) + 1;
             Sim.Speed = speed;
             labelSpeed.Text = speed.ToString();
@@ -151,6 +179,23 @@ namespace Simulation
         {
             ((System.Windows.Forms.Timer)sender).Stop();
             this.Close();
+        }
+
+        private void checkFeedback_CheckedChanged(object sender, EventArgs e)
+        {
+            Sim.Feedback = checkFeedback.Checked;
+
+            if (Sim.Feedback)
+            {
+                Console.WriteLine("Redirecting output to the text box");
+                Console.SetOut(new TextBoxWriter(this, txtConsole));
+            }
+            else
+            {
+                Console.WriteLine("Stop Redirecting output to the text box");
+                StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
+                Console.SetOut(standardOutput);
+            }
         }
     }
 }

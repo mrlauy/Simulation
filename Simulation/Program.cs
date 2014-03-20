@@ -45,7 +45,11 @@ namespace Simulation
 
             public void UpdateSim()
             {
-
+                //   no need for graphical updates
+            }
+            public void UpdateOut()
+            {
+                // no need to redirected console output
             }
         }
     }

@@ -9,5 +9,6 @@ namespace Simulation
     public interface IUpdate
     {
         void UpdateSim();
+        void UpdateOut();
     }
 }

@@ -30,6 +30,10 @@
         {
             this.buttonStart = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.labelDVDoutputb = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.labelCrateContent = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
             this.labelDVDProductionHour = new System.Windows.Forms.Label();
             this.labelProductionHour = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
@@ -73,10 +77,7 @@
             this.speedBar = new System.Windows.Forms.HScrollBar();
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
-            this.label8 = new System.Windows.Forms.Label();
-            this.labelCrateContent = new System.Windows.Forms.Label();
-            this.label11 = new System.Windows.Forms.Label();
-            this.labelDVDoutputb = new System.Windows.Forms.Label();
+            this.checkFeedback = new System.Windows.Forms.CheckBox();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -137,6 +138,42 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(563, 204);
             this.panel1.TabIndex = 2;
+            // 
+            // labelDVDoutputb
+            // 
+            this.labelDVDoutputb.AutoSize = true;
+            this.labelDVDoutputb.Location = new System.Drawing.Point(441, 121);
+            this.labelDVDoutputb.Name = "labelDVDoutputb";
+            this.labelDVDoutputb.Size = new System.Drawing.Size(13, 13);
+            this.labelDVDoutputb.TabIndex = 25;
+            this.labelDVDoutputb.Text = "0";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(397, 121);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(38, 13);
+            this.label11.TabIndex = 24;
+            this.label11.Text = "DVDs:";
+            // 
+            // labelCrateContent
+            // 
+            this.labelCrateContent.AutoSize = true;
+            this.labelCrateContent.Location = new System.Drawing.Point(289, 80);
+            this.labelCrateContent.Name = "labelCrateContent";
+            this.labelCrateContent.Size = new System.Drawing.Size(13, 13);
+            this.labelCrateContent.TabIndex = 23;
+            this.labelCrateContent.Text = "0";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(245, 80);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(38, 13);
+            this.label8.TabIndex = 22;
+            this.label8.Text = "DVDs:";
             // 
             // labelDVDProductionHour
             // 
@@ -527,47 +564,23 @@
             this.buttonStop.UseVisualStyleBackColor = true;
             this.buttonStop.Click += new System.EventHandler(this.buttonStop_Click);
             // 
-            // label8
+            // checkFeedback
             // 
-            this.label8.AutoSize = true;
-            this.label8.Location = new System.Drawing.Point(245, 80);
-            this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(38, 13);
-            this.label8.TabIndex = 22;
-            this.label8.Text = "DVDs:";
-            // 
-            // labelCrateContent
-            // 
-            this.labelCrateContent.AutoSize = true;
-            this.labelCrateContent.Location = new System.Drawing.Point(289, 80);
-            this.labelCrateContent.Name = "labelCrateContent";
-            this.labelCrateContent.Size = new System.Drawing.Size(13, 13);
-            this.labelCrateContent.TabIndex = 23;
-            this.labelCrateContent.Text = "0";
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(397, 121);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(38, 13);
-            this.label11.TabIndex = 24;
-            this.label11.Text = "DVDs:";
-            // 
-            // labelDVDoutputb
-            // 
-            this.labelDVDoutputb.AutoSize = true;
-            this.labelDVDoutputb.Location = new System.Drawing.Point(441, 121);
-            this.labelDVDoutputb.Name = "labelDVDoutputb";
-            this.labelDVDoutputb.Size = new System.Drawing.Size(13, 13);
-            this.labelDVDoutputb.TabIndex = 25;
-            this.labelDVDoutputb.Text = "0";
+            this.checkFeedback.AutoSize = true;
+            this.checkFeedback.Location = new System.Drawing.Point(585, 92);
+            this.checkFeedback.Name = "checkFeedback";
+            this.checkFeedback.Size = new System.Drawing.Size(104, 17);
+            this.checkFeedback.TabIndex = 10;
+            this.checkFeedback.Text = "Show Feedback";
+            this.checkFeedback.UseVisualStyleBackColor = true;
+            this.checkFeedback.CheckedChanged += new System.EventHandler(this.checkFeedback_CheckedChanged);
             // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(686, 453);
+            this.Controls.Add(this.checkFeedback);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.speedBar);
             this.Controls.Add(this.labelSpeed);
@@ -658,5 +671,6 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label labelCrateContent;
         private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.CheckBox checkFeedback;
     }
 }
