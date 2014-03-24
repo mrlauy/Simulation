@@ -28,7 +28,7 @@ namespace Simulation
         public int Speed { get; set; }   // Simulation speed
         public bool Feedback { get; set; } // If simulation gives feedback
 
-        private Random random;
+        private Input input;
 
         private int CRATE_SIZE = 20;
         private int BUFFER_SIZE = 20;
@@ -36,9 +36,14 @@ namespace Simulation
         // State variables
         public double Time { get; private set; }  // Simulation time
         public Dictionary<Machine, State> MachineState { get; private set; }    // state of each individual machine
+
+        // state of the machine in case something has gone wrong
+        private Dictionary<Machine, Event> M1ShouldHaveFinished;
+        private Dictionary<Machine, double> TimeM1HasBrokenDown;
+        private Dictionary<Machine, int> dvdBeforeM4Service;
+        
         public Queue<int> BufferA { get; private set; }     // buffer between machine 1a, machine 1b and machine 2a
         public Queue<int> BufferB { get; private set; }     // buffer between machine 1c, machine 1d and machine 2b
-
 
         public Queue<int> dvdReadyForM3a { get; private set; }      // dvd in crate ready to be processed by machine 3
         public Queue<int> dvdReadyForM3b { get; private set; }               // number of dvd in a crate ready to be processed by machine 3
@@ -46,7 +51,8 @@ namespace Simulation
         public Queue<int> dvdReadyForInputM4a { get; private set; }         // number of dvd ready to be processed by machine 4, 
         public Queue<int> dvdReadyForInputM4b { get; private set; }         // number of dvd ready to be processed by machine 4, 
         //   at least one dvd ready means there is a crate, 21 dvd ready means that there are two crates 
-
+         
+        // Statistic variables
         public int dvdCounter { get; private set; }             // counter for how many dvds the production has started to produce
         public int dvdInProduction { get; private set; }        // number of DVD in production
         public List<double> dvdProduced { get; private set; }   // time of dvd is finished
@@ -59,12 +65,7 @@ namespace Simulation
         public Dictionary<Machine, double> IdleTime { get; private set; } // time a machine is broken
         public Dictionary<Machine, double> BlockedTime { get; private set; } // time a machine is blocked
 
-        public double[] m1tijden = new double[500];
-
-        // state of the machine in case something has gone wrong
-        private Dictionary<Machine, Event> M1ShouldHaveFinished;
-        private Dictionary<Machine, double> TimeM1HasBrokenDown;
-        private Dictionary<Machine, int> dvdBeforeM4Service;
+        public Dictionary<string, Dictionary<double, int>> Statistics { get; private set; } // for each buffer keep the volume of the buffer/batch
 
         public Simulation(IUpdate parent)
         {
@@ -81,8 +82,7 @@ namespace Simulation
             Speed = 1;
 
             eventList = new TreeSet<Event>();
-            random = new Random();
-            m1tijden = Read();
+            input = new Input();
 
             //  initiate buffers
             BufferA = new Queue<int>();
@@ -135,12 +135,20 @@ namespace Simulation
             BlockedTime[Machine.M4a] = 0;
             BlockedTime[Machine.M4b] = 0;
 
+            Statistics = new Dictionary<string, Dictionary<double, int>>();
+            Statistics["bufferA"] = new Dictionary<double, int>();
+            Statistics["bufferB"] = new Dictionary<double, int>();
+            Statistics["batchAin"] = new Dictionary<double, int>();
+            Statistics["batchBin"] = new Dictionary<double, int>();
+            Statistics["batchAout"] = new Dictionary<double, int>();
+            Statistics["batchBout"] = new Dictionary<double, int>();
+
             // initiate machine states
             M1ShouldHaveFinished = new Dictionary<Machine, Event>();
             TimeM1HasBrokenDown = new Dictionary<Machine, double>();
             dvdBeforeM4Service = new Dictionary<Machine, int>();
-            dvdBeforeM4Service[Machine.M4a] = M4Service();
-            dvdBeforeM4Service[Machine.M4b] = M4Service();
+            dvdBeforeM4Service[Machine.M4a] = input.M4Service();
+            dvdBeforeM4Service[Machine.M4b] = input.M4Service();
 
             MachineState = new Dictionary<Machine, State>();
             MachineState[Machine.M1a] = State.BUSY;
@@ -172,6 +180,8 @@ namespace Simulation
 
         public void Run()
         {
+            new Test();
+            return;
             Running = true;
             // SaveStatistics();
             Console.WriteLine("Simulation running");
@@ -225,7 +235,8 @@ namespace Simulation
                     }
                 }
 
-                if (!Feedback) { 
+                if (!Feedback)
+                {
                     Thread.Sleep(Speed);
                 }
             }
@@ -251,6 +262,13 @@ namespace Simulation
             UpdateStatistic(Machine.M3b, elapsedTime);
             UpdateStatistic(Machine.M4a, elapsedTime);
             UpdateStatistic(Machine.M4b, elapsedTime);
+
+            Statistics["bufferA"].Add(e.Time, BufferA.Count);
+            Statistics["bufferB"].Add(e.Time, BufferB.Count);
+            Statistics["batchAin"].Add(e.Time, dvdReadyForM3a.Count);
+            Statistics["batchBin"].Add(e.Time, dvdReadyForM3b.Count);
+            Statistics["batchAout"].Add(e.Time, dvdReadyForInputM4a.Count);
+            Statistics["batchBout"].Add(e.Time, dvdReadyForInputM4b.Count);
         }
 
         private void UpdateStatistic(Machine machine, double elapsedTime)
@@ -283,6 +301,14 @@ namespace Simulation
             StoreFile(directory, "finished", dvdProduced);
 
             StoreFile(directory, "throughput", dvdThroughput);
+
+
+            StoreFile(directory, "bufferA", Statistics["bufferA"]);
+            StoreFile(directory, "bufferB", Statistics["bufferB"]);
+            StoreFile(directory, "batchAin", Statistics["batchAin"]);
+            StoreFile(directory, "batchBin", Statistics["batchBin"]);
+            StoreFile(directory, "batchAout", Statistics["batchAout"]);
+            StoreFile(directory, "batchBout", Statistics["batchBout"]);
 
             StoreStatistics(directory);
 
@@ -326,7 +352,8 @@ namespace Simulation
             }
         }
 
-        private string MachineStatistic(Machine machine) {
+        private string MachineStatistic(Machine machine)
+        {
             return String.Format("{0}\t{1:F}\t{2:F}\t{3:F}\t{4:F}", machine, IdleTime[machine], BusyTime[machine], BlockedTime[machine], Time - IdleTime[machine] - BusyTime[machine] - BlockedTime[machine]);
         }
 
@@ -340,19 +367,15 @@ namespace Simulation
                 }
             }
         }
-
-        private void PlotGraph(Series series, string filename)
+        private void StoreFile(string dir, string filename, IDictionary dictionary)
         {
-            FileStream outputStream = new FileStream(filename + ".png", FileMode.OpenOrCreate);
-
-            using (var ch = new Chart())
+            using (StreamWriter file = new StreamWriter(dir + "\\" + filename + ".txt"))
             {
-                ch.ChartAreas.Add(new ChartArea());
-                ch.Series.Add(series);
-                ch.SaveImage(outputStream, ChartImageFormat.Png);
+                foreach (DictionaryEntry entry in dictionary)
+                {
+                    file.WriteLine("{0:F}\t{1:D}", entry.Key, entry.Value);
+                }
             }
-            outputStream.Flush();
-            outputStream.Close();
         }
 
         private void M1Finished(Event e)
@@ -533,14 +556,13 @@ namespace Simulation
         {
             // update statistics
             // The chance the dvd has failed during the production
-            double chance = random.NextDouble();
-            if (chance > 0.02) // 2% van de dvds
+            if (input.DVDFails())
             {
-                dvdProduced.Add(e.Time);
+                dvdFailed.Add(e.Time);
             }
             else
             {
-                dvdFailed.Add(e.Time);
+                dvdProduced.Add(e.Time);
             }
             dvdInProduction--;
             dvdBeforeM4Service[e.Machine]--;
@@ -633,7 +655,7 @@ namespace Simulation
 
         private void RepairM4(Event e)
         {
-            dvdBeforeM4Service[e.Machine] = M4Service();
+            dvdBeforeM4Service[e.Machine] = input.M4Service();
             MachineState[e.Machine] = State.BUSY;
             scheduleM4(e.Time, e.Machine);
         }
@@ -670,16 +692,7 @@ namespace Simulation
                 StartTimes[dvdCounter] = time;
                 dvdStartTimes.Add(time);
 
-                //we have an array with our sorted observed procution times
-                //these times variate between 0-541 seconds.
-                Array.Sort(m1tijden);
-
-                //We let a random number decide which observed proc. time to use. 
-                double u = random.NextDouble();
-                double randompickD = u * m1tijden.Length;
-                int randompick = (int)randompickD;
-
-                double processTime = m1tijden[randompick];
+                double processTime = input.M1();
 
                 eventList.Add(new Event(time + processTime, Type.MACHINE_1, machine, dvdCounter));
             }
@@ -698,7 +711,7 @@ namespace Simulation
                     if (BufferA.Count > 0)
                     {
                         int dvd = BufferA.Dequeue();
-                        double processTime = 24; // TODO
+                        double processTime = input.M2();
                         eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, dvd));
                     }
                     else
@@ -712,7 +725,7 @@ namespace Simulation
                     if (BufferB.Count > 0)
                     {
                         int dvd = BufferB.Dequeue();
-                        double processTime = 24; // TODO
+                        double processTime = input.M2();
                         eventList.Add(new Event(time + processTime, Type.MACHINE_2, machine, dvd));
                     }
                     else
@@ -731,7 +744,7 @@ namespace Simulation
 
         private void scheduleAddDVDToCrate(double time, Machine machine, int dvd)
         {
-            double processTime = Exp(5 * 60);   // 5 min exp dist
+            double processTime = input.ToCrate();
             eventList.Add(new Event(time + processTime, Type.ADD_TO_CRATE, machine, dvd));
         }
 
@@ -742,49 +755,24 @@ namespace Simulation
             {
                 // calculate the processing time
                 List<int> crate = new List<int>();
-                double sputteringTime = 0;
-                double lacquerTime = 0;
 
                 for (int i = 0; i < CRATE_SIZE; i++)
                 {
                     crate.Add(dvdReadyForM3a.Dequeue());
-                    sputteringTime += Exp(10);
-                    lacquerTime += Exp(6);
                 }
 
-                double processTime = sputteringTime + lacquerTime + 3 * 60; // exp(10 sec) + exp(6 sec) + 3 min
-
-                // with 3 percent per dvd, the batch is delayed with average 5 min to clean
-                double chance = random.NextDouble();
-                if (chance < 0.03 * CRATE_SIZE)
-                {
-                    processTime += Exp(5 * 60);
-                }
-
+                double processTime = input.M3(CRATE_SIZE);
                 eventList.Add(new Event(time + processTime, Type.MACHINE_3, machine, crate));
             }
             else if (dvdReadyForM3b.Count >= CRATE_SIZE)
             {
                 List<int> crate = new List<int>();
-                double sputteringTime = 0;
-                double lacquerTime = 0;
-
                 for (int i = 0; i < CRATE_SIZE; i++)
                 {
                     crate.Add(dvdReadyForM3b.Dequeue());
-                    sputteringTime += Exp(10);
-                    lacquerTime += Exp(6);
                 }
 
-                double processTime = sputteringTime + lacquerTime + 3 * 60; // exp(10 sec) + exp(6 sec) + 3 min
-
-                // with 3 percent per dvd, the batch is delayed with average 5 min to clean
-                double chance = random.NextDouble();
-                if (chance < 0.03 * CRATE_SIZE)
-                {
-                    processTime += Exp(5 * 60);
-                }
-
+                double processTime = input.M3(CRATE_SIZE);
                 eventList.Add(new Event(time + processTime, Type.MACHINE_3, machine, crate));
             }
             else
@@ -805,13 +793,13 @@ namespace Simulation
             {
                 int dvd = dvdReadyForInputM4a.Dequeue();
 
-                double processTime = 25; // gemiddelde TODO
+                double processTime = input.M4();
                 eventList.Add(new Event(time + processTime, Type.MACHINE_4, machine, dvd));
             }
             else if (machine == Machine.M4b && dvdReadyForInputM4b.Count > 0)
             {
                 int dvd = dvdReadyForInputM4b.Dequeue();
-                double processTime = 25; // gemiddelde
+                double processTime = input.M4();
                 eventList.Add(new Event(time + processTime, Type.MACHINE_4, machine, dvd));
             }
             else if (machine == Machine.M4a && dvdReadyForInputM4b.Count == CRATE_SIZE && MachineState[Machine.M4b] == State.BROKEN)
@@ -846,66 +834,18 @@ namespace Simulation
 
         private void scheduleM1Breakdown(double time, Machine machine)
         {
-            double breakTime = Exp(8 * 60 * 60);   // 8 hours exp distr
+            double breakTime = input.M1Breakdown();
             eventList.Add(new Event(time + breakTime, Type.BREAKDOWN_1, machine));
         }
         private void scheduleM1Repair(double time, Machine machine)
         {
-            double breakTime = Exp(2 * 60 * 60);   // 2 hours exp distr
+            double breakTime = input.M1Repair();
             eventList.Add(new Event(time + breakTime, Type.REPAIRED_1, machine));
         }
         private void scheduleM4Repair(double time, Machine machine)
         {
-            double breakTime = Exp(15 * 60);   // 15 min exp distr
+            double breakTime = input.M4Repair();
             eventList.Add(new Event(time + breakTime, Type.REPAIRED_4, machine));
-        }
-
-        private int M4Service()
-        {
-            return 200;
-        }
-
-        private double Exp(double lambda)
-        {
-            double u = random.NextDouble();
-            return (0 - lambda) * Math.Log(1 - u);
-        }
-
-        public double[] Read()
-        {
-            double[] times = new double[500];
-            string exeLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-            string exeDir = System.IO.Path.GetDirectoryName(exeLocation);
-            string dataFile = Path.Combine(exeDir, @"data\proctimes.txt");
-
-            int i = 0;
-            try
-            {
-                Debug.WriteLine("READ" + dataFile);
-                if (File.Exists(dataFile))
-                {
-                    string[] lines = System.IO.File.ReadAllLines(dataFile);
-
-                    // Use the file contents to fill an array of doubles by using a foreach loop.
-                    foreach (string line in lines)
-                    {
-                        double number = double.Parse(line);
-                        times[i] = number;
-                        i++;
-                    }
-                }
-                else
-                {
-                    Debug.WriteLine("something went wrong with the file reading");
-                }
-            }
-            catch (ArgumentException e)
-            {
-                Debug.WriteLine(e);
-            }
-
-            //return de array met processing tijden 
-            return times;
         }
     }
 }

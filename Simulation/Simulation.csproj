@@ -56,10 +56,12 @@
       <DependentUpon>GUI.cs</DependentUpon>
     </Compile>
     <Compile Include="IUpdate.cs" />
+    <Compile Include="Input.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadTimes.cs" />
     <Compile Include="Simulation.cs" />
+    <Compile Include="Test.cs" />
     <Compile Include="TextBoxWriter.cs" />
     <Compile Include="TreeSet.cs" />
     <EmbeddedResource Include="GUI.resx">
@@ -88,7 +90,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="data\M1Observations.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\M4Observations.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="data\proctimes.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="data\M2Observations.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
