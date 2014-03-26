@@ -11,13 +11,19 @@ namespace Simulation
     class Input
     {
         private Random random;
-        private double[] m1tijden;
+        private double[] M1Times;
+        private double[] M2Times;
+        private double[] M4Times;
 
         public Input()
         {
             random = new Random();
-            m1tijden = M1Observations();
-            Array.Sort(m1tijden);
+            M1Times = M1Observations();
+            M2Times = M2Observations();
+            M4Times = M4Observations();
+            Array.Sort(M1Times);
+            Array.Sort(M2Times);
+            Array.Sort(M4Times);
         }
 
         /// <summary>
@@ -40,9 +46,9 @@ namespace Simulation
 
             //We let a random number decide which observed proc. time to use. 
             double u = random.NextDouble();
-            double randompickD = u * m1tijden.Length;
+            double randompickD = u * M1Times.Length;
             int randompick = (int)randompickD;
-            return m1tijden[randompick];
+            return M1Times[randompick];
         }
 
         /// <summary>
@@ -96,7 +102,11 @@ namespace Simulation
         /// <returns>processing time</returns>
         public double M4()
         {
-            return Exp(25);
+            //We let a random number decide which observed proc. time to use. 
+            double u = random.NextDouble();
+            double randompickD = u * M4Times.Length;
+            int randompick = (int)randompickD;
+            return M4Times[randompick];
         }
 
         /// <summary>

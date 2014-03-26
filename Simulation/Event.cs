@@ -104,7 +104,7 @@ namespace Simulation
 
         public override string ToString()
         {
-            return "E: [time=" + Math.Round(Time, 4) + ", \ttype=" + Type + (Machine != Machine.DUMMY ? ", machine=" + Machine : "")  + (DVD > 0 ? ", dvd=" + DVD : (DVDs != null ? ", dvds="+ DVDs : "")) + "]";
+                return "E: [time=" + Math.Round(Time, 4) + ", \ttype=" + Type + (Machine != Machine.DUMMY ? ", machine=" + Machine : "")  + (DVD > 0 ? ", dvd=" + DVD : (DVDs != null ? ", dvds="+ string.Join(",", DVDs) : "")) + "]";
         }
     }
 }

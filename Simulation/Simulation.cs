@@ -21,7 +21,7 @@ namespace Simulation
     {
         private IUpdate parent;
 
-        private static int RUN_LENGTH = 10000;
+        private static int RUN_LENGTH = 86400;
         private TreeSet<Event> eventList;
         public bool Paused { get; set; }            // is the simulation paused
         public bool Running { get; set; }   // is the simulation running
@@ -72,6 +72,13 @@ namespace Simulation
             Feedback = true;
             this.parent = parent;
             Initialize();
+        }
+
+        public void ChangeSimulation(int runLength, int bufferSize, int crateSize)
+        {
+            RUN_LENGTH = runLength;
+            BUFFER_SIZE = bufferSize;
+            CRATE_SIZE = crateSize;
         }
 
         public void Initialize()
@@ -180,8 +187,6 @@ namespace Simulation
 
         public void Run()
         {
-            new Test();
-            return;
             Running = true;
             // SaveStatistics();
             Console.WriteLine("Simulation running");
@@ -193,7 +198,10 @@ namespace Simulation
                     UpdateStatistics(e);
                     Time = e.Time;
 
-                    Console.WriteLine("Process Event: " + e);
+                    if (Feedback)
+                    {
+                        Console.WriteLine("Process Event: " + e);
+                    }
 
                     switch (e.Type)
                     {
@@ -241,12 +249,14 @@ namespace Simulation
                 }
             }
 
+            bool hadFeedback = Feedback;
             Feedback = true;
             parent.UpdateOut();
             parent.UpdateSim();
 
             SaveStatistics();
             Console.WriteLine("Simulation finished");
+            Feedback = hadFeedback;
         }
 
         private void UpdateStatistics(Event e)

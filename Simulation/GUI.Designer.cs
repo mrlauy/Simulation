@@ -78,6 +78,7 @@
             this.labelSpeed = new System.Windows.Forms.Label();
             this.buttonStop = new System.Windows.Forms.Button();
             this.checkFeedback = new System.Windows.Forms.CheckBox();
+            this.buttonMultiSim = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panelM4B.SuspendLayout();
             this.panelM4A.SuspendLayout();
@@ -575,11 +576,22 @@
             this.checkFeedback.UseVisualStyleBackColor = true;
             this.checkFeedback.CheckedChanged += new System.EventHandler(this.checkFeedback_CheckedChanged);
             // 
+            // buttonMultiSim
+            // 
+            this.buttonMultiSim.Location = new System.Drawing.Point(599, 133);
+            this.buttonMultiSim.Name = "buttonMultiSim";
+            this.buttonMultiSim.Size = new System.Drawing.Size(75, 23);
+            this.buttonMultiSim.TabIndex = 11;
+            this.buttonMultiSim.Text = "Multi Sim";
+            this.buttonMultiSim.UseVisualStyleBackColor = true;
+            this.buttonMultiSim.Click += new System.EventHandler(this.buttonMultiSim_Click);
+            // 
             // GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(686, 453);
+            this.Controls.Add(this.buttonMultiSim);
             this.Controls.Add(this.checkFeedback);
             this.Controls.Add(this.buttonStop);
             this.Controls.Add(this.speedBar);
@@ -672,5 +684,6 @@
         private System.Windows.Forms.Label labelCrateContent;
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.CheckBox checkFeedback;
+        private System.Windows.Forms.Button buttonMultiSim;
     }
 }

@@ -99,8 +99,8 @@ namespace Simulation
             SetControlPropertyValue(labelBufferA, "Text", Sim.BufferA.Count.ToString());
             SetControlPropertyValue(labelBufferB, "Text", Sim.BufferB.Count.ToString());
 
-            SetControlPropertyValue(labelCrateContent, "Text", Sim.dvdReadyForM3a.Count.ToString());
-            SetControlPropertyValue(labelCrateContentb, "Text", Sim.dvdReadyForM3b.Count.ToString());
+            SetControlPropertyValue(labelCrateContent, "Text", Math.Min(20, Sim.dvdReadyForM3a.Count).ToString());
+            SetControlPropertyValue(labelCrateContentb, "Text", Math.Min(20, Sim.dvdReadyForM3b.Count).ToString());
 
             SetControlPropertyValue(labelDVDoutput, "Text", Sim.dvdReadyForInputM4a.Count.ToString());
             SetControlPropertyValue(labelDVDoutputb, "Text", Sim.dvdReadyForInputM4b.Count.ToString());
@@ -196,6 +196,21 @@ namespace Simulation
                 StreamWriter standardOutput = new StreamWriter(Console.OpenStandardOutput());
                 Console.SetOut(standardOutput);
             }
+        }
+
+        private void buttonMultiSim_Click(object sender, EventArgs e)
+        {
+            new MultiSim(this);
+            buttonStart.Enabled = false;
+            buttonStop.Enabled = false;
+            checkFeedback.Enabled = false;
+        }
+
+        public void Enable()
+        {
+            SetControlPropertyValue(buttonStart, "Enabled", true);
+            SetControlPropertyValue(buttonStop, "Enabled", true);
+            SetControlPropertyValue(checkFeedback, "Enabled", true);
         }
     }
 }
