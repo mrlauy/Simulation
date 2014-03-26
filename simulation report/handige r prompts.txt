@@ -1,0 +1,244 @@
+d = read.table("throughput.txt",header=TRUE, sep="\t",col.names=c("throughputtimes"),row.names = NULL)
+run1 <- data.frame(d = read.table("throughput1.txt",header=TRUE, sep="\t",col.names=c("throughputtimes"),row.names = NULL))
+
+
+mean(d[[1]])
+
+hist(d[[1]], breaks=40, main="frequency plot")
+hist(d[[1]], freq=FALSE, main="Density plot")
+
+> hist2 <- hist(d[[1]], plot=FALSE, breaks = 40)
+> hist2$density
+> sum(hist2$density)
+> sum(diff(hist2$breaks)*hist2$density)
+
+> hist(d[[1]], freq=FALSE, xlab="Processing Time in seconds", main="Distribution of Processing Times", col="lightgreen",xlim=c(0,600))
+> lines(density(d[[1]], from = 0, to = max(d[[1]])))
+
+
+ png('histogram and kernel density plot for M1.png')
+ hist(d[[1]], breaks = 40, freq=FALSE, xlab="Processing Time in seconds", main="Histogram of Processing Times for M1 with Kernel Density Plot", col="pink",xlim=c(0,600))
+ lines(density(d[[1]], from = 0, to = max(d[[1]])))
+  dev.off()
+
+png('histogram and kernel density plot for M2.png')
+ hist(m2[[1]], breaks = 50, freq=FALSE, xlab="Processing Time in seconds", main="Histogram of Processing Times for M2 with Kernel Density Plot", col="lightblue",xlim=c(0,120))
+ lines(density(m2[[1]], from = 0, to = max(m2[[1]])))
+  dev.off()
+  
+  m4 = read.table("proctimesm4.txt",header=FALSE, sep="\t",col.names=c("proctimes"),row.names = NULL)
+  
+  png('histograms and kernel density plot for M4.png')
+ hist(m4[[1]], breaks = 10, freq=FALSE, xlab="Processing Time in seconds", main="Histogram of Processing Times for M4 with Kernel Density Plot", col="yellow",xlim=c(0,40))
+ lines(density(m4[[1]], from = 0, to = 30))
+  dev.off()
+  
+  # histogram with normal density curve
+png('histogram and normal density plot for M1.png')
+hist(d[[1]],breaks = 50, freq=FALSE, xlab="Processing Time in seconds", main="Histogram of Processing Times for M1 with Kernel Density Plot", col="red",xlim=c(0,600))
+curve(dnorm(x, mean = mean(d[[1]]), sd = sd(d[[1]]), add = T)
+dev.off()
+
+#ECDF
+png('ECDF for M1.png')
+plot.ecdf(d[[1]], ylab = " ",  xlab="Processing Time in seconds", main = "ECDF for Observed M1 Processing Times", xlim=c(0,max(d[[1]]))) 
+mtext(text = expression(hat(F)[ N](x)), side = 2, line = 2.5) 
+dev.off()
+
+png('ECDF for M2.png')
+plot.ecdf(m2[[1]], ylab = " ",  xlab="Processing Time in seconds", main = "ECDF for Observed M2 Processing Times", xlim=c(0,max(m2[[1]]))) 
+mtext(text = expression(hat(F)[ N](x)), side = 2, line = 2.5) 
+dev.off()
+
+png('ECDF for M4.png')
+plot.ecdf(m4[[1]], ylab = " ", xlab="Processing Time in seconds", main = "ECDF for Observed M4 Processing Times", xlim=c(20,30))
+mtext(text = expression(hat(F)[ N](x)), side = 2, line = 2.5) 
+dev.off()
+
+Constructing Quantile-Quantile Plots to Check Goodness of Fit
+n = length(d[[1]])
+probabilities = (1:n)/(n+1)
+normal.quantiles = qnorm(probabilities, mean(d[[1]]), sd(d[[1]]))
+
+ png('Normal Q-Q Plot for M1.png')
+ plot(sort(normal.quantiles),sort(d[[1]]), xlab = 'Theoretical Quantiles from Normal Distribution', ylab = 'Sample Quantiles of M1', main = 'Normal Q-Q Plot of M1')
+ abline(0,1)
+ dev.off()
+
+The plotted points do not fall closely onto the identity line, so the data do not seem to come from the normal distribution.
+
+gamma.quantiles = qgamma(probabilities, shape = mean(d[[1]])^2/var(d[[1]]), scale = var(d[[1]])/mean(d[[1]]))
+png('gamma q-q plot for M1.png')
+ plot(sort(gamma.quantiles), sort(d[[1]]), xlab = 'Theoretical Quantiles from Gamma Distribution', ylab = 'Sample Quantiles of M1', main = 'Gamma Q-Q Plot of M1')
+abline(0,1)
+dev.off()
+
+exponential.quantiles = qexp(probabilities, rate = 1 / mean(d[[1]]))
+png('exponential q-q plot for M1.png')
+ plot(sort(exponential.quantiles), sort(d[[1]]), xlab = 'Theoretical Quantiles from Exponential Distribution', ylab = 'Sample Quantiles of M1', main = 'Exponential Q-Q Plot of M1')
+abline(0,1)
+dev.off()
+
+--- QQ plots for m2
+n = length(m2[[1]])
+probabilities = (1:n)/(n+1)
+normal.quantiles = qnorm(probabilities, mean(m2[[1]]), sd(m2[[1]]))
+
+ png('Normal Q-Q Plot for M2.png')
+ plot(sort(normal.quantiles),sort(m2[[1]]), xlab = 'Theoretical Quantiles from Normal Distribution', ylab = 'Sample Quantiles of M2', main = 'Normal Q-Q Plot of M2')
+ abline(0,1)
+ dev.off()
+
+ gamma.quantiles = qgamma(probabilities, shape = mean(m2[[1]])^2/var(m2[[1]]), scale = var(m2[[1]])/mean(m2[[1]]))
+png('gamma q-q plot for M2.png')
+ plot(sort(gamma.quantiles), sort(m2[[1]]), xlab = 'Theoretical Quantiles from Gamma Distribution', ylab = 'Sample Quantiles of M2', main = 'Gamma Q-Q Plot of M2')
+abline(0,1)
+dev.off()
+
+ exponential.quantiles = qexp(probabilities, rate = 1 / mean(m2[[1]]))
+png('exponential q-q plot for M2.png')
+ plot(sort(exponential.quantiles), sort(m2[[1]]), xlab = 'Theoretical Quantiles from Exponential Distribution', ylab = 'Sample Quantiles of M2', main = 'Exponential Q-Q Plot of M2')
+abline(0,1)
+dev.off()
+
+x = fitdistr(m2[[1]], "weibull")
+   weibull.quantiles = qweibull(probabilities, shape = x[[1]][1], scale = x[[1]][2])
+png('Weibull q-q plot for M2.png')
+ plot(sort(weibull.quantiles), sort(m2[[1]]), xlab = 'Theoretical Quantiles from Weibull Distribution', ylab = 'Sample Quantiles of M2', main = 'Weibull Q-Q Plot of M2')
+abline(0,1)
+dev.off()
+
+x = fitdistr(m2[[1]], "lognormal")
+  lognormal.quantiles = qlnorm(probabilities, meanlog = x[[1]][1], sdlog = x[[1]][2])
+png('lognormal q-q plot for M2.png')
+ plot(sort(lognormal.quantiles), sort(m2[[1]]), xlab = 'Theoretical Quantiles from Lognormal Distribution', ylab = 'Sample Quantiles of M2', main = 'Lognormal Q-Q Plot of M2')
+abline(0,1)
+dev.off()
+
+
+--------------------------M4
+x = fitdistr(m4[[1]], "lognormal")
+  lognormal.quantiles = qlnorm(probabilities, meanlog = x[[1]][1], sdlog = x[[1]][2])
+png('lognormal q-q plot for M4.png')
+ plot(sort(lognormal.quantiles), sort(m4[[1]]), xlab = 'Theoretical Quantiles from Lognormal Distribution', ylab = 'Sample Quantiles of M4', main = 'Lognormal Q-Q Plot of M4')
+abline(0,1)
+dev.off()
+
+
+x = fitdistr(m4[[1]], "weibull")
+   weibull.quantiles = qweibull(probabilities, shape = x[[1]][1], scale = x[[1]][2])
+png('Weibull q-q plot for M4.png')
+ plot(sort(weibull.quantiles), sort(m4[[1]]), xlab = 'Theoretical Quantiles from Weibull Distribution', ylab = 'Sample Quantiles of M4', main = 'Weibull Q-Q Plot of M4')
+abline(0,1)
+dev.off()
+
+ks.test(m2[[1]],"pweibull", shape=x[[1]][1],scale=x[[1]][2]) 
+
+exponential.quantiles = qexp(probabilities, rate = 1 / mean(m4[[1]]))
+png('exponential q-q plot for M4.png')
+ plot(sort(exponential.quantiles), sort(m4[[1]]), xlab = 'Theoretical Quantiles from Exponential Distribution', ylab = 'Sample Quantiles of M4', main = 'Exponential Q-Q Plot of M4')
+abline(0,1)
+dev.off()
+
+ gamma.quantiles = qgamma(probabilities, shape = mean(m4[[1]])^2/var(m4[[1]]), scale = var(m4[[1]])/mean(m4[[1]]))
+png('gamma q-q plot for M4.png')
+ plot(sort(gamma.quantiles), sort(m4[[1]]), xlab = 'Theoretical Quantiles from Gamma Distribution', ylab = 'Sample Quantiles of M4', main = 'Gamma Q-Q Plot of M4')
+abline(0,1)
+dev.off()
+
+normal.quantiles = qnorm(probabilities, mean(m4[[1]]), sd(m4[[1]]))
+
+ png('Normal Q-Q Plot for M4.png')
+ plot(sort(normal.quantiles),sort(m4[[1]]), xlab = 'Theoretical Quantiles from Normal Distribution', ylab = 'Sample Quantiles of M4', main = 'Normal Q-Q Plot of M4')
+ abline(0,1)
+ dev.off()
+
+
+------------------------------
+throughput = read.table("throughput.txt",header=FALSE, sep="\t",col.names=c("proctimes"),row.names = NULL)
+
+png("Throughput Frequency.png")
+ hist(throughput1[[1]],breaks=40, xlab = 'Throughput time in seconds', col="purple",main="frequency plot")
+  hist(throughput[[1]],breaks=40, xlab = 'Throughput time in seconds', col="yellow",main="frequency plot")
+ dev.off()
+ 
+
+ ggplot style requires data to be packed in data.frame.
+ # Data generation
+x  <- seq(-2, 2, 0.05)
+y1 <- pnorm(x)
+y2 <- pnorm(x,1,1)
+df <- data.frame(x,y1,y2)
+
+ggplot(df, aes(1)) +                    
+  geom_line(aes(y=throughput[[1]]), colour="red") + 
+  geom_line(aes(y=throughput1[[1]]), colour="green")  
+  
+  g <- g + ylab("Y") + xlab("X")
+
+
+---------------------------------------
+mydata = ldply(list.files(pattern = “txt”), function(filename) {
+dum = read.table(filename,skip=1)
+
+dum$filename = filename
+return(dum)
+}
+
+list.files(pattern = '*.txt')
+
+mydata = list.files(pattern = '*.txt')
+for(
+assign(i,read.txt(...))
+
+files <- dir(,pattern="*.txt")
+
+for(f in files) {
+
+  line=read.table(f,head=T)
+}
+
+file_names <- dir(pattern = '*.txt')
+data_list <- lapply(file_names, read.table, header = TRUE)
+data_frame <- data.frame(lapply(file_names, read.table, header = TRUE))
+
+
+WORKS:
+> file_names <- dir(pattern = '*.txt')
+> file_names
+[1] "throughput.txt"  "throughput1.txt"
+> data_list <- lapply(file_names, read.table, header = TRUE)
+> data_list
+
+data_mean <- lapply(data_list, mean, header = FALSE)
+
+lapply(data_list[[1]],hist)
+
+  d = data.frame(a = read.table("throughput.txt",header=TRUE, sep="\t",col.names=c("proctimes"),row.names = NULL), b = read.table("throughput1.txt",header=TRUE, sep="\t",col.names=c("proctimes"),row.names = NULL))
+plot(density(d$proctimes), xlim = c(0, 5000))
+lines(density(d$proctimes.1), col = "red")
+------------------------------------------------------------------------
+carrots <- data.frame(length = rnorm(100000, 6, 2))
+cukes <- data.frame(length = rnorm(50000, 7, 2.5))
+
+run0 <- data.frame(throughputtime = d[[1]])
+run1 <- data.frame(throughputtime = d1[[1]])
+run0$run <- 'run0'
+run1$run <- 'run1'
+
+names(run0) <- names(run1)
+runTtimes <- rbind(run0, run1)
+ ggplot(runTtimes, aes(throughputtime, fill = run)) + geom_bar(pos="dodge")
+
+ggplot(vesLengths, aes(time, fill = veg)) + geom_density(alpha = 0.2)
+
+identical(names(xd.small[[1]]), names(xd.small[[2]]) )
+-------------------------------------------------------------------------------
+
+ d = data.frame(a = read.table("bufferA.txt",header=FALSE, sep="\t",col.names=c("time", "dvds"),row.names = NULL))
+df <- data.frame(time = d[[1]])
+df$dvds <- d[[2]]
+ggplot( data = df, aes( time, dvds )) + geom_step(stat = "identity", position = "identity") 
+
+plot1<-ggplot()
+plot1 <- plot1 +layer (data=df, mapping=aes_string(x= time,y= dvds),geom='bar', stat='identity')
