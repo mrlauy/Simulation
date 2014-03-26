@@ -10,6 +10,9 @@ using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms.DataVisualization.Charting;
 
+
+
+
 namespace Simulation
 {
     enum Type { MACHINE_1, MACHINE_2, MACHINE_3, ADD_TO_CRATE, MACHINE_4, BREAKDOWN_1, REPAIRED_1, REPAIRED_4, END_OF_SIMULATION };
@@ -41,7 +44,7 @@ namespace Simulation
         private Dictionary<Machine, Event> M1ShouldHaveFinished;
         private Dictionary<Machine, double> TimeM1HasBrokenDown;
         private Dictionary<Machine, int> dvdBeforeM4Service;
-        
+
         public Queue<int> BufferA { get; private set; }     // buffer between machine 1a, machine 1b and machine 2a
         public Queue<int> BufferB { get; private set; }     // buffer between machine 1c, machine 1d and machine 2b
 
@@ -51,7 +54,7 @@ namespace Simulation
         public Queue<int> dvdReadyForInputM4a { get; private set; }         // number of dvd ready to be processed by machine 4, 
         public Queue<int> dvdReadyForInputM4b { get; private set; }         // number of dvd ready to be processed by machine 4, 
         //   at least one dvd ready means there is a crate, 21 dvd ready means that there are two crates 
-         
+
         // Statistic variables
         public int dvdCounter { get; private set; }             // counter for how many dvds the production has started to produce
         public int dvdInProduction { get; private set; }        // number of DVD in production
@@ -299,6 +302,11 @@ namespace Simulation
 
         private void SaveStatistics()
         {
+            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulture.NumberFormat.NumberDecimalSeparator = ".";
+
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
             Console.WriteLine("Simulation Saving Statistics");
 
             string[] dirs = Directory.GetDirectories(Directory.GetCurrentDirectory(), "run*");
@@ -338,8 +346,8 @@ namespace Simulation
 
                 if (dvdThroughput.Count > 0)
                 {
-                    file.WriteLine("avgThroughput:\t{0:F}", dvdThroughput.Min());
-                    file.WriteLine("minThroughput:\t{0:F}", dvdThroughput.Average());
+                    file.WriteLine("avgThroughput:\t{0:F}", dvdThroughput.Average());
+                    file.WriteLine("minThroughput:\t{0:F}", dvdThroughput.Min());
                     file.WriteLine("maxThroughput:\t{0:F}", dvdThroughput.Max());
                 }
                 else
@@ -377,13 +385,23 @@ namespace Simulation
                 }
             }
         }
-        private void StoreFile(string dir, string filename, IDictionary dictionary)
+        private void StoreFile(string dir, string filename, Dictionary<double, int> dictionary)
         {
             using (StreamWriter file = new StreamWriter(dir + "\\" + filename + ".txt"))
             {
-                foreach (DictionaryEntry entry in dictionary)
+                var list = dictionary.ToList();
+                if (list.Count > 0)
                 {
-                    file.WriteLine("{0:F}\t{1:D}", entry.Key, entry.Value);
+                    int last = list[0].Value;
+                    file.Write("{0:F}\t{1:D}", list[0].Key, list[0].Value);
+                    for (int i = 1; i < list.Count; i++)
+                    {
+                        if (last != list[i].Value)
+                        {
+                            last = list[i].Value;
+                            file.Write("\r\n{0:F}\t{1:D}", list[i].Key, list[i].Value);
+                        }
+                    }
                 }
             }
         }

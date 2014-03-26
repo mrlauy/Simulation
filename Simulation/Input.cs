@@ -17,6 +17,11 @@ namespace Simulation
 
         public Input()
         {
+            System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
+            customCulture.NumberFormat.NumberDecimalSeparator = ",";
+
+            System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
             random = new Random();
             M1Times = M1Observations();
             M2Times = M2Observations();
@@ -57,7 +62,7 @@ namespace Simulation
         /// <returns>processing time</returns>
         public double M2()
         {
-            return Gamma(12.90103617, 1.895859505); 
+            return Gamma(12.90103617, 1.895859505);
         }
 
         /// <summary>
