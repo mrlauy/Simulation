@@ -39,8 +39,8 @@ A model is supposed to be a simplification of reality, therefore in order to cre
 
 \subsubsection{General assumptions}
 \begin{itemize}
-\item All machines have enough resources available, when they run out, recourses are being refilled immediately (which may cause the machine to stop it's production for some time during the refill).
-\item The production line runs 24/7.
+\item All machines have enough resources available, when they run out, resources are being refilled immediately (which may cause the machine to stop it's production for some time during the refill).
+\item The production line runs 24/7, therefore we have chosen a time where after the simulation runs steady. The start-up time from the simulation.
 \item When we start the production line we assume none of the machines is broken down.
 \item At any moment in time enough repairman are available, so that repairs can be scheduled immediately. 
 \end{itemize}
@@ -281,9 +281,13 @@ We use the following \textbf{event handlers} and \emph{subroutines} to deal with
 	\tab \textbf{if}(machine should be serviced) \textbraceleft \\
 	\tab \tab machine state = BROKEN; \\
 	\tab \tab schedule machine 4 repair event \\
-	\tab \textbraceright \textbf{else if}(dvd ready for input macchine 4 $>$ 0) \textbraceleft \\
+	\tab \textbraceright \textbf{else if}(dvd ready for input machine 4 $>$ 0) \textbraceleft \\
 	\tab \tab DvdReadyforInputM4 $=-$ 1 \\
 	\tab \tab add machine 4 finished event to event list \\
+	\tab \textbraceright \textbf{else if}(crate for other machine 4 is full and the machine isn't working) \textbraceleft \\
+	\tab \tab perform a crate switch \\
+	\tab \tab DvdReadyforInputM4 $=-$ crate size \\
+	\tab \tab add machine 4 finished event to event list\\
 	\tab \textbraceright \textbf{else} \textbraceleft \\
 	\tab \tab machine state = IDLE \\
 	\tab \textbraceright \\
